@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     img.addEventListener('mousedown', (e) => {
+        e.preventDefault();  // Prevents the default image drag behavior
         isMouseDown = true;
         startX = e.pageX;
         startY = e.pageY;
@@ -29,12 +30,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.addEventListener('mousemove', (e) => {
         if (!isMouseDown) return;
-        e.preventDefault();
+        e.preventDefault();  // Prevents text selection or any other default behavior while dragging
         setScrollPosition(e.pageX, e.pageY);
     });
 
     // Add touch support for mobile devices
     img.addEventListener('touchstart', (e) => {
+        e.preventDefault();  // Optional for touch, but can be used to prevent default mobile behaviors
         startX = e.touches[0].pageX;
         startY = e.touches[0].pageY;
         scrollStartX = parseInt(img.style.left, 10) || 0;
@@ -48,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     img.addEventListener('touchmove', (e) => {
         if (!panorama.classList.contains('active')) return;
-        e.preventDefault();
+        e.preventDefault();  // Prevents scrolling the whole page on touch devices
         setScrollPosition(e.touches[0].pageX, e.touches[0].pageY);
     });
 });

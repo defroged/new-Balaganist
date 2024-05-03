@@ -43,23 +43,23 @@ html, body {
 
 .panorama {
     width: 100%;
-    height: 100vh;  // Full viewport height
+    height: 100vh;  
     overflow: hidden;
     position: relative;
-    cursor: grab;  // Indicates that the image can be dragged
+    cursor: grab;  
 }
 
 .panorama.active {
-    cursor: grabbing;  // Changes cursor during dragging
+    cursor: grabbing;  
 }
 
 .panorama img {
     position: absolute;
-    left: 50%;       // Center the image horizontally
-    top: 50%;        // Center the image vertically
-    transform: translate(-50%, -50%) scale(2);  // Adjust scale as needed
-    width: auto;     // Ensure natural dimensions are used
-    height: auto;    // Ensure natural dimensions are used
+    left: 50%;       
+    top: 50%;        
+    transform: translate(-50%, -50%) scale(2);  
+    width: auto;    
+    height: auto;   
 }
 
 .shareBtn {
