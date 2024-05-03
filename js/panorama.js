@@ -26,15 +26,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const x = e.pageX - startX;
         let newLeft = scrollStartX + x;
 
-        // Reset position to create an infinite loop effect
+        // Dynamically adjust the position of both images to create an infinite effect
         if (newLeft > 0) {
-            scrollStartX -= img1.offsetWidth;
-            newLeft -= img1.offsetWidth;
+            img1.style.left = `${newLeft - img1.offsetWidth}px`;
+            img2.style.left = `${newLeft}px`;
         } else if (newLeft < -img1.offsetWidth) {
-            scrollStartX += img1.offsetWidth;
-            newLeft += img1.offsetWidth;
+            img1.style.left = `${newLeft + img2.offsetWidth}px`;
+            img2.style.left = `${newLeft}px`;
+        } else {
+            img1.style.left = `${newLeft}px`;
+            img2.style.left = `${newLeft + img1.offsetWidth}px`;
         }
-        panorama.style.left = `${newLeft}px`;
     });
 
     // Adding touch support for mobile devices
@@ -55,14 +57,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const x = e.touches[0].pageX - startX;
         let newLeft = scrollStartX + x;
 
-        // Reset position to create an infinite loop effect
+        // Similar logic as mousemove for touch devices
         if (newLeft > 0) {
-            scrollStartX -= img1.offsetWidth;
-            newLeft -= img1.offsetWidth;
+            img1.style.left = `${newLeft - img1.offsetWidth}px`;
+            img2.style.left = `${newLeft}px`;
         } else if (newLeft < -img1.offsetWidth) {
-            scrollStartX += img1.offsetWidth;
-            newLeft += img1.offsetWidth;
+            img1.style.left = `${newLeft + img2.offsetWidth}px`;
+            img2.style.left = `${newLeft}px`;
+        } else {
+            img1.style.left = `${newLeft}px`;
+            img2.style.left = `${newLeft + img1.offsetWidth}px`;
         }
-        panorama.style.left = `${newLeft}px`;
     });
 });
