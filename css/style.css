@@ -55,11 +55,16 @@ html, body {
 }
 
 .panorama img {
-    position: absolute;/* Absolute positioning to place images precisely */
-    width: 50%;        /* Each image takes up half of the panorama's width */
-    height: 100%;      /* Each image stretches to fill the container height */
+    position: absolute;
+    width: 50%;        /* Each image takes up half of the panorama width */
+    height: auto;      /* Height is auto to maintain aspect ratio */
+    min-height: 100%;  /* Ensure it covers at least the entire height of the viewport */
     object-fit: cover; /* Ensures images cover their area without distorting */
+    transform: translate(-50%, -50%) scale(1.5); /* Center, zoom, and maintain aspect ratio */
+    top: 50%;          /* Vertically center the images in the container */
+    left: initial;     /* We will adjust left via JavaScript, not here */
 }
+
 
 #img1 {
     left: 0;           /* Aligns the first image to the left edge of the panorama */

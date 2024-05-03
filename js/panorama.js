@@ -18,6 +18,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+// Function to adjust image positions dynamically
+function adjustImagePositions(x, y) {
+    let baseX = x % img1.offsetWidth;
+    let baseY = y;
+    if (baseX > 0) {
+        img1.style.transform = `translate(${baseX - img1.offsetWidth}px, ${baseY}px) scale(1.5)`;
+        img2.style.transform = `translate(${baseX}px, ${baseY}px) scale(1.5)`;
+    } else {
+        img1.style.transform = `translate(${baseX}px, ${baseY}px) scale(1.5)`;
+        img2.style.transform = `translate(${baseX + img1.offsetWidth}px, ${baseY}px) scale(1.5)`;
+    }
+}
+
     panorama.addEventListener('mousedown', (e) => {
         e.preventDefault(); // Prevents default drag behavior
         isMouseDown = true;
