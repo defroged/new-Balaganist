@@ -1,32 +1,38 @@
 document.addEventListener('DOMContentLoaded', function() {
     const img = document.querySelector('.panorama img');
-    let startX, startY, scrollLeft, scrollTop;
+    let isMouseDown = false;
+    let startX, scrollStartX;
+
+    function setScrollPosition(x) {
+        let newLeft = scrollStartX + (x - startX);
+        // Limit scrolling to the image boundaries
+        newLeft = Math.min(newLeft, 0);
+        newLeft = Math.max(newLeft, window.innerWidth - img.offsetWidth);
+        img.style.left = `${newLeft}px`;
+    }
 
     img.addEventListener('mousedown', (e) => {
+        isMouseDown = true;
         startX = e.pageX;
-        startY = e.pageY;
-        scrollLeft = window.pageXOffset;
-        scrollTop = window.pageYOffset;
+        scrollStartX = parseInt(img.style.left, 10) || 0;
         img.classList.add('active');
     });
 
-    img.addEventListener('mouseup', () => {
+    document.addEventListener('mouseup', () => {
+        isMouseDown = false;
         img.classList.remove('active');
     });
 
-    img.addEventListener('mousemove', (e) => {
-        if (!img.classList.contains('active')) return;
+    document.addEventListener('mousemove', (e) => {
+        if (!isMouseDown) return;
         e.preventDefault();
-        const x = e.pageX - startX;
-        window.scrollBy(-x, 0);
+        setScrollPosition(e.pageX);
     });
 
     // Add touch support for mobile devices
     img.addEventListener('touchstart', (e) => {
         startX = e.touches[0].pageX;
-        startY = e.touches[0].pageY;
-        scrollLeft = window.pageXOffset;
-        scrollTop = window.pageYOffset;
+        scrollStartX = parseInt(img.style.left, 10) || 0;
         img.classList.add('active');
     });
 
@@ -37,7 +43,6 @@ document.addEventListener('DOMContentLoaded', function() {
     img.addEventListener('touchmove', (e) => {
         if (!img.classList.contains('active')) return;
         e.preventDefault();
-        const x = e.touches[0].pageX - startX;
-        window.scrollBy(-x, 0);
+        setScrollPosition(e.touches[0].pageX);
     });
 });

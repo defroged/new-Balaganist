@@ -32,25 +32,29 @@ body {
   background-color: #1A1B1D;
 }
 
-/*html, body {
-    margin: 0;
+html, body {
+    /*margin: 0;
     padding: 0;
     width: 100%;
-    height: 100%;
+    height: 100%; */
     overflow: hidden;
-}*/
+}
 
 
 .panorama {
-    width: 300%; /* Adjust according to the width of your panorama image */
-    height: 100vh;
-    overflow: visible; /* Allows image to be larger than the screen */
+    width: 100%;
+    height: 100vh;  // Viewport height
+    overflow: hidden;
+    position: relative;
 }
 
 .panorama img {
-    width: 100%;
-    height: auto;
     position: absolute;
+    left: 50%;       // Centers the image horizontally
+    top: 50%;        // Centers the image vertically
+    transform: translate(-50%, -50%) scale(2);  // Adjust scale as needed to zoom in
+    min-width: 100%; // Ensures the image covers the width fully when not zoomed
+    min-height: 100%; // Ensures the image covers the height fully when not zoomed
 }
 
 .shareBtn {
