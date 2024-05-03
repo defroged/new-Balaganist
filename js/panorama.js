@@ -3,13 +3,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const img1 = document.getElementById('img1');
     const img2 = document.getElementById('img2');
     let isMouseDown = false;
-    let startX, scrollStartX;
+    let startX, draggedX;
+
+    function adjustImagePositions(newLeft) {
+        if (newLeft > 0) {
+            img1.style.left = `${newLeft - img1.offsetWidth}px`;
+            img2.style.left = `${newLeft}px`;
+        } else if (newLeft < -img1.offsetWidth) {
+            img1.style.left = `${newLeft + img2.offsetWidth}px`;
+            img2.style.left = `${newLeft}px`;
+        } else {
+            img1.style.left = `${newLeft}px`;
+            img2.style.left = `${newLeft + img1.offsetWidth}px`;
+        }
+    }
 
     panorama.addEventListener('mousedown', (e) => {
         e.preventDefault(); // Prevents default drag behavior
         isMouseDown = true;
         startX = e.pageX;
-        scrollStartX = parseInt(panorama.style.left, 10) || 0;
+        draggedX = parseInt(img1.style.left) || 0; // Get the current position of the first image
         panorama.classList.add('active');
         panorama.style.cursor = 'grabbing';
     });
@@ -24,26 +37,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!isMouseDown) return;
         e.preventDefault(); // Prevents text selection or any other default behavior while dragging
         const x = e.pageX - startX;
-        let newLeft = scrollStartX + x;
+        let newLeft = draggedX + x;
 
-        // Dynamically adjust the position of both images to create an infinite effect
-        if (newLeft > 0) {
-            img1.style.left = `${newLeft - img1.offsetWidth}px`;
-            img2.style.left = `${newLeft}px`;
-        } else if (newLeft < -img1.offsetWidth) {
-            img1.style.left = `${newLeft + img2.offsetWidth}px`;
-            img2.style.left = `${newLeft}px`;
-        } else {
-            img1.style.left = `${newLeft}px`;
-            img2.style.left = `${newLeft + img1.offsetWidth}px`;
-        }
+        // Dynamically adjust the position of both images
+        adjustImagePositions(newLeft);
     });
 
     // Adding touch support for mobile devices
     panorama.addEventListener('touchstart', (e) => {
         e.preventDefault(); // Prevents default mobile behaviors
         startX = e.touches[0].pageX;
-        scrollStartX = parseInt(panorama.style.left, 10) || 0;
+        draggedX = parseInt(img1.style.left) || 0; // Get the current position for touch devices
         panorama.classList.add('active');
     });
 
@@ -55,18 +59,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!panorama.classList.contains('active')) return;
         e.preventDefault(); // Prevents scrolling the whole page on touch devices
         const x = e.touches[0].pageX - startX;
-        let newLeft = scrollStartX + x;
+        let newLeft = draggedX + x;
 
         // Similar logic as mousemove for touch devices
-        if (newLeft > 0) {
-            img1.style.left = `${newLeft - img1.offsetWidth}px`;
-            img2.style.left = `${newLeft}px`;
-        } else if (newLeft < -img1.offsetWidth) {
-            img1.style.left = `${newLeft + img2.offsetWidth}px`;
-            img2.style.left = `${newLeft}px`;
-        } else {
-            img1.style.left = `${newLeft}px`;
-            img2.style.left = `${newLeft + img1.offsetWidth}px`;
-        }
+        adjustImagePositions(newLeft);
     });
 });
