@@ -1,56 +1,68 @@
 document.addEventListener('DOMContentLoaded', function() {
     const panorama = document.querySelector('.panorama');
-    const img = document.querySelector('.panorama img');
+    const img1 = document.getElementById('img1');
+    const img2 = document.getElementById('img2');
     let isMouseDown = false;
-    let startX, startY, scrollStartX, scrollStartY;
+    let startX, scrollStartX;
 
-    function setScrollPosition(x, y) {
-        let newLeft = scrollStartX + (x - startX);
-        let newTop = scrollStartY + (y - startY);
-
-        // Apply the new positions
-        img.style.left = `${newLeft}px`;
-        img.style.top = `${newTop}px`;
-    }
-
-    img.addEventListener('mousedown', (e) => {
-        e.preventDefault();  // Prevents the default image drag behavior
+    panorama.addEventListener('mousedown', (e) => {
+        e.preventDefault(); // Prevents default drag behavior
         isMouseDown = true;
         startX = e.pageX;
-        startY = e.pageY;
-        scrollStartX = parseInt(img.style.left, 10) || 0;
-        scrollStartY = parseInt(img.style.top, 10) || 0;
+        scrollStartX = parseInt(panorama.style.left, 10) || 0;
         panorama.classList.add('active');
+        panorama.style.cursor = 'grabbing';
     });
 
     document.addEventListener('mouseup', () => {
         isMouseDown = false;
         panorama.classList.remove('active');
+        panorama.style.cursor = 'grab';
     });
 
     document.addEventListener('mousemove', (e) => {
         if (!isMouseDown) return;
-        e.preventDefault();  // Prevents text selection or any other default behavior while dragging
-        setScrollPosition(e.pageX, e.pageY);
+        e.preventDefault(); // Prevents text selection or any other default behavior while dragging
+        const x = e.pageX - startX;
+        let newLeft = scrollStartX + x;
+
+        // Reset position to create an infinite loop effect
+        if (newLeft > 0) {
+            scrollStartX -= img1.offsetWidth;
+            newLeft -= img1.offsetWidth;
+        } else if (newLeft < -img1.offsetWidth) {
+            scrollStartX += img1.offsetWidth;
+            newLeft += img1.offsetWidth;
+        }
+        panorama.style.left = `${newLeft}px`;
     });
 
-    // Add touch support for mobile devices
-    img.addEventListener('touchstart', (e) => {
-        e.preventDefault();  // Optional for touch, but can be used to prevent default mobile behaviors
+    // Adding touch support for mobile devices
+    panorama.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Prevents default mobile behaviors
         startX = e.touches[0].pageX;
-        startY = e.touches[0].pageY;
-        scrollStartX = parseInt(img.style.left, 10) || 0;
-        scrollStartY = parseInt(img.style.top, 10) || 0;
+        scrollStartX = parseInt(panorama.style.left, 10) || 0;
         panorama.classList.add('active');
     });
 
-    img.addEventListener('touchend', () => {
+    panorama.addEventListener('touchend', () => {
         panorama.classList.remove('active');
     });
 
-    img.addEventListener('touchmove', (e) => {
+    panorama.addEventListener('touchmove', (e) => {
         if (!panorama.classList.contains('active')) return;
-        e.preventDefault();  // Prevents scrolling the whole page on touch devices
-        setScrollPosition(e.touches[0].pageX, e.touches[0].pageY);
+        e.preventDefault(); // Prevents scrolling the whole page on touch devices
+        const x = e.touches[0].pageX - startX;
+        let newLeft = scrollStartX + x;
+
+        // Reset position to create an infinite loop effect
+        if (newLeft > 0) {
+            scrollStartX -= img1.offsetWidth;
+            newLeft -= img1.offsetWidth;
+        } else if (newLeft < -img1.offsetWidth) {
+            scrollStartX += img1.offsetWidth;
+            newLeft += img1.offsetWidth;
+        }
+        panorama.style.left = `${newLeft}px`;
     });
 });

@@ -42,7 +42,7 @@ html, body {
 
 
 .panorama {
-    width: 100%;
+    width: 200%;
     height: 100vh;  
     overflow: hidden;
     position: relative;
@@ -58,9 +58,20 @@ html, body {
     left: 50%;       
     top: 50%;        
     transform: translate(-50%, -50%) scale(1);  
-    width: auto;    
-    height: auto;   
+    width: 50%;    
+    height: 100%;  
+    display: inline-block;	
 }
+
+#img1 {
+    left: 0;
+}
+
+#img2 {
+    left: 100%; 
+}
+
+
 
 .shareBtn {
   position: absolute;
