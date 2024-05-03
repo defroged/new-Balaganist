@@ -42,34 +42,33 @@ html, body {
 
 
 .panorama {
-    width: 200%;
-    height: 100vh;  
-    overflow: hidden;
-    position: relative;
-    cursor: grab;  
+    width: 200%;       /* This sets the container to hold two full-width images side by side */
+    height: 100vh;     /* Sets the height to fill the viewport */
+    overflow: hidden;  /* Hides anything outside this container */
+    position: relative;/* Necessary for absolute positioning of images */
+    cursor: grab;      /* Cursor indicates grabbable area */
+    left: 0;           /* Ensures the panorama starts aligned to the left */
 }
 
 .panorama.active {
-    cursor: grabbing;  
+    cursor: grabbing;  /* Changes cursor to grabbing when active */
 }
 
 .panorama img {
-    position: absolute;
-    left: 50%;       
-    top: 50%;        
-    transform: translate(-50%, -50%) scale(1);  
-    width: 50%;    
-    height: 100%;  
-    display: inline-block;	
+    position: absolute;/* Absolute positioning to place images precisely */
+    width: 50%;        /* Each image takes up half of the panorama's width */
+    height: 100%;      /* Each image stretches to fill the container height */
+    object-fit: cover; /* Ensures images cover their area without distorting */
 }
 
 #img1 {
-    left: 0;
+    left: 0;           /* Aligns the first image to the left edge of the panorama */
 }
 
 #img2 {
-    left: 100%; 
+    left: 100%;        /* Positions the second image immediately to the right of the first */
 }
+
 
 
 
