@@ -32,13 +32,14 @@ body {
   background-color: #1A1B1D;
 }
 
-html, body {
+/*html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden; /* Prevents vertical scrolling */
-}
+    overflow: hidden;
+}*/
+
 
 .panorama {
     width: 300%; /* Adjust according to the width of your panorama image */
