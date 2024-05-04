@@ -261,8 +261,10 @@ h1 {
 
 #header-video {
   width: 58%;
-  top: 44%;
+  top: 43%;
   position: absolute;
+  left: 50%;
+  transform: translate(-50%, -20%);
 }
 
 @-webkit-keyframes opacity {
