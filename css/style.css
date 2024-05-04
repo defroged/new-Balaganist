@@ -260,9 +260,9 @@ h1 {
 }
 
 #header-video {
-    width: 100%;  /* Full width of the container */
-    height: auto; /* Maintain aspect ratio */
-    max-height: 300px; /* Maximum height */
+  width: 58%;
+  top: 44%;
+  position: relative;
 }
 
 @-webkit-keyframes opacity {
@@ -291,7 +291,7 @@ h2#slogan {
   width: 80%;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 75%;
+  bottom: 62%;
   font-size: 5vh;
   font-weight: 600;
   color: #F4591E;
