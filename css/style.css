@@ -259,6 +259,12 @@ h1 {
   animation-delay: 1s;
 }
 
+#header-video {
+    width: 100%;  /* Full width of the container */
+    height: auto; /* Maintain aspect ratio */
+    max-height: 300px; /* Maximum height */
+}
+
 @-webkit-keyframes opacity {
   from {
     opacity: 0;
