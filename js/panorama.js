@@ -16,15 +16,16 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
+  // Set the initial position of the panorama image to the middle
+  const initialPosition = -img1.offsetWidth / 2;
+  adjustImagePositions(initialPosition);
+
   function handleScroll() {
     const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    let scrollPercentage = window.pageYOffset / scrollHeight;
+    const scrollPercentage = window.pageYOffset / scrollHeight;
     const newLeft = -img1.offsetWidth * scrollPercentage;
     adjustImagePositions(newLeft);
   }
-
-  // Initialize the position based on the CSS settings directly
-  adjustImagePositions(-img1.offsetWidth / 2); // This sets img1 to start from -75% (half its width) as in your CSS
 
   window.addEventListener("scroll", handleScroll);
 });
