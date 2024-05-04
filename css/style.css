@@ -48,7 +48,7 @@ body {
 
 .panorama img {
     position: absolute;/* Absolute positioning to place images precisely */
-    width: 100%;
+    width: 120%;
     height: 100%;      /* Each image stretches to fill the container height */
     object-fit: cover; /* Ensures images cover their area without distorting */
 }
