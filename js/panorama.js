@@ -16,7 +16,10 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
-  // Calculate the scroll percentage and adjust the panorama image position based on it
+  // Set initial position to start in the middle of the image
+  const initialLeft = -img1.offsetWidth / 2;
+  adjustImagePositions(initialLeft);
+
   function handleScroll() {
     const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
     const scrollPercentage = window.pageYOffset / scrollHeight;
@@ -24,6 +27,5 @@ document.addEventListener("DOMContentLoaded", function() {
     adjustImagePositions(newLeft);
   }
 
-  // Add an event listener to handle scrolling
   window.addEventListener("scroll", handleScroll);
 });
