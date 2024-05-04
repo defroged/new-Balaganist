@@ -16,16 +16,22 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
-  // Call handleScroll initially to set the correct position from the start
-  function handleScroll() {
+  // Improved handleScroll to handle an initial mid-position start
+  function handleScroll(useInitial = false) {
     const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    const scrollPercentage = window.pageYOffset / scrollHeight;
+    let scrollPercentage = window.pageYOffset / scrollHeight;
+    
+    // Set the initial middle position if requested
+    if (useInitial) {
+      scrollPercentage = 0.5;  // Adjust this value to choose where the middle is
+    }
+
     const newLeft = -img1.offsetWidth * scrollPercentage;
     adjustImagePositions(newLeft);
   }
 
-  // Initial call to align positions without waiting for scroll
-  handleScroll();
+  // Call with initial setup flag
+  handleScroll(true);
 
-  window.addEventListener("scroll", handleScroll);
+  window.addEventListener("scroll", () => handleScroll());
 });
