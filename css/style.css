@@ -260,9 +260,7 @@ h1 {
 }
 
 #header-video {
-    width: 100%;  /* Full width of the container */
-    height: auto; /* Maintain aspect ratio */
-    max-height: 300px; /* Maximum height */
+    width: 100%;
 }
 
 @-webkit-keyframes opacity {
