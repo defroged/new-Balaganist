@@ -42,12 +42,12 @@ html, body {
 
 
 .panorama {
-    width: 200%;       /* This sets the container to hold two full-width images side by side */
-    height: 100vh;     /* Sets the height to fill the viewport */
-    overflow: hidden;  /* Hides anything outside this container */
-    position: relative;/* Necessary for absolute positioning of images */
-    cursor: grab;      /* Cursor indicates grabbable area */
-    left: 0;           /* Ensures the panorama starts aligned to the left */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200%;       /* Still need this to handle the two-image panorama effect */
+    height: 100vh;
+    z-index: -1; 
 }
 
 .panorama.active {
@@ -246,17 +246,6 @@ section {
   margin-top: 50px;
   margin-bottom: 50px;
   background-color: #F4591E;
-}
-
-.mainView {
-  position: relative;
-  min-height: 100vh;
-  max-height: 100vh;
-  color: #9fa0ac;
-  background: url("../img/bcc-free-template-rock-hard.jpg");
-  background-size: cover;
-  background-position: center;
-  background-color: transparent;
 }
 
 h1 {
