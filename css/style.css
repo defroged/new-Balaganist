@@ -259,7 +259,7 @@ h1 {
   animation-delay: 1s;
 }
 
-#header-video {
+#header-image {
   width: 58%;
   top: 43%;
   position: absolute;
@@ -294,7 +294,7 @@ h2#slogan {
   left: 50%;
   transform: translateX(-50%);
   bottom: 62%;
-  font-size: 5vh;
+  font-size: 4vh;
   font-weight: 600;
   color: #F4591E;
   text-shadow: 0 2px 10px #1A1B1D;
