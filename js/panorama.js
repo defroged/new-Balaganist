@@ -21,10 +21,11 @@ document.addEventListener("DOMContentLoaded", function() {
   adjustImagePositions(initialPosition);
 
   function handleScroll() {
-    const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    const scrollPercentage = window.pageYOffset / scrollHeight;
-    const newLeft = -img1.offsetWidth * scrollPercentage;
-    adjustImagePositions(newLeft);
+      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrollPercentage = window.pageYOffset / scrollHeight;
+      const startPosition = -img1.offsetWidth / 2;
+      const newLeft = startPosition + (-img1.offsetWidth * scrollPercentage);
+      adjustImagePositions(newLeft);
   }
 
   window.addEventListener("scroll", handleScroll);
