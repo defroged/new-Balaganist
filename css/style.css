@@ -31,14 +31,6 @@ body {
   font-size: 16px;
   background-color: #1A1B1D;
 }
-/*
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%; 
-    overflow: hidden;
-}*/
 
 
 .panorama {
@@ -56,7 +48,7 @@ html, body {
 
 .panorama img {
     position: absolute;/* Absolute positioning to place images precisely */
-    width: 50%;        /* Each image takes up half of the panorama's width */
+    width: 100%;
     height: 100%;      /* Each image stretches to fill the container height */
     object-fit: cover; /* Ensures images cover their area without distorting */
 }
@@ -254,7 +246,7 @@ h1 {
   width: 80%;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 20%;
+  bottom: 1%;
   font-size: 7vh;
   font-weight: 900;
   color: #FEFEFE;
@@ -293,7 +285,7 @@ h2#slogan {
   width: 80%;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 10%;
+  bottom: 75%;
   font-size: 5vh;
   font-weight: 600;
   color: #F4591E;
@@ -327,7 +319,7 @@ h2#slogan {
   }
 }
 p {
-  color: #9fa0ac;
+  color: #fff;
   line-height: 30px;
   margin: 50px 0 50px 0;
 }
