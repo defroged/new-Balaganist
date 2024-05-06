@@ -352,7 +352,7 @@ p.miniPara {
   justify-content: space-around;
   align-items: center;
   margin: auto;
-  width: 80%;
+  width: 100%;
 }
 .imgContent .card {
   display: flex;
