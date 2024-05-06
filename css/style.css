@@ -646,12 +646,6 @@ footer img {
   justify-content: center;
   align-items: center;
 }
-.footerBaner .bandBanner {
-  margin: 0 30px;
-  width: 100%;
-  max-width: 75px;
-  cursor: default;
-}
 
 #upArrow {
   display: none;
