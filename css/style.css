@@ -739,6 +739,11 @@ button[name=backSite] {
     bottom: 45%;
   }
 
+#header-image {
+	width: 85%;
+    top: 60%;
+}
+
   h2#slogan {
     width: 90%;
     font-size: 4vh;
