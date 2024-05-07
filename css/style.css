@@ -784,6 +784,10 @@ button[name=backSite] {
     box-sizing: border-box; /* Includes padding in the width calculation */
   }
 
+.menu {
+	top: 2%;
+    right: 2%;
+}
   #bandVideo {
     max-width: 100%;
   }

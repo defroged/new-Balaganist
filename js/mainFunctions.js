@@ -319,10 +319,10 @@ $(function () {
 $(function () {
     $('.facebook').on('click', function(event) {
       event.preventDefault();
-      window.location.href = "https://facebook.com/";
+      window.location.href = "https://www.facebook.com/BalaganistJapan";
     });
     $('.instagram').on('click', function(event) {
       event.preventDefault();
-      window.location.href = "https://www.instagram.com/";
+      window.location.href = "https://www.instagram.com/balaganistjapan";
     });
 })
