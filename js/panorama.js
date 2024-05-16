@@ -16,17 +16,30 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
-  // Set the initial position of the panorama image to the middle
   const initialPosition = -img1.offsetWidth / 3;
   adjustImagePositions(initialPosition);
 
+  let lastScrollY = window.pageYOffset;
+  let targetLeft = initialPosition;
+  let currentLeft = initialPosition;
+
+  function easeOutQuad(t) {
+    return t * (2 - t);
+  }
+
   function handleScroll() {
-      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      const scrollPercentage = window.pageYOffset / scrollHeight;
-      const startPosition = -img1.offsetWidth / 3;
-      const newLeft = startPosition + (-img1.offsetWidth * scrollPercentage);
-      adjustImagePositions(newLeft);
+    const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrollPercentage = window.pageYOffset / scrollHeight;
+    const startPosition = -img1.offsetWidth / 3;
+    targetLeft = startPosition + (-img1.offsetWidth * scrollPercentage);
+  }
+
+  function animate() {
+    currentLeft += (targetLeft - currentLeft) * 0.1; // Adjust the easing factor (0.1) to make it smoother or sharper
+    adjustImagePositions(currentLeft);
+    requestAnimationFrame(animate);
   }
 
   window.addEventListener("scroll", handleScroll);
+  requestAnimationFrame(animate);
 });
