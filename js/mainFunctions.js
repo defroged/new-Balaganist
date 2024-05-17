@@ -48,12 +48,45 @@ $(function () {
   }
 })
 
+
+// new Form
+document.addEventListener('DOMContentLoaded', (event) => {
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent the default form submission
+
+        // Get form values
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const message = document.getElementById('message').value;
+        const mathAnswer = document.getElementById('mathQuestion').value;
+
+        // Validate math question
+        if (parseInt(mathAnswer) !== 7) {
+            alert("Incorrect answer to the math question. Please try again.");
+            return; // Exit the function if the math answer is incorrect
+        }
+
+        // If everything is correct, you can proceed with form submission
+        // For example, sending the data to a server
+        console.log("Form submitted successfully!");
+        console.log("Name:", name);
+        console.log("Email:", email);
+        console.log("Message:", message);
+
+        // Clear the form fields
+        document.getElementById('contactForm').reset();
+    });
+});
+
+// end new form
+
+
 // Script adresse Email
 // Listener pour chargement adresse mailto
 window.addEventListener("load", function () {
   if (document.getElementById('insertMail')) {
-    let name = "balaganistjapan" ; // Update yours informations here
-    let domain = "gmail.com" ; // Update yours informations here
+    let name = "connect" ; // Update yours informations here
+    let domain = "balaganist.com" ; // Update yours informations here
     //let subject = "subject=Formulaire Tuco" ;
     let divMail = document.getElementById('insertMail');
     let newAhref = document.createElement('a');

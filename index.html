@@ -215,10 +215,22 @@
     </p>
     <p id="insertMail" class="hardLight"></p>
 
-    <form class="contactForm">
-
+<form class="contactForm" id="contactForm">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required><br><br>
     
-    </form>
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required><br><br>
+    
+    <label for="message">Message:</label>
+    <textarea id="message" name="message" required></textarea><br><br>
+    
+    <label for="mathQuestion">What is 3 + 4?</label>
+    <input type="text" id="mathQuestion" name="mathQuestion" required><br><br>
+    
+    <input type="submit" value="Submit">
+</form>
+
     <p class="hidePara" aria-hidden="true" id="retourFormulaire"></p>
   </section>
 
