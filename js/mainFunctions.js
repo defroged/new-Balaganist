@@ -91,22 +91,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 // end new form
 
-
-// Script adresse Email
-// Listener pour chargement adresse mailto
-window.addEventListener("load", function () {
-  if (document.getElementById('insertMail')) {
-    let name = "connect" ; // Update yours informations here
-    let domain = "balaganist.com" ; // Update yours informations here
-    //let subject = "subject=Formulaire Tuco" ;
-    let divMail = document.getElementById('insertMail');
-    let newAhref = document.createElement('a');
-    newAhref.href = "mailto:" + name + '@' + domain;
-    newAhref.innerHTML = name + '@' + domain;
-    divMail.appendChild(newAhref);
-  }
-})
-
 // Manage vidéo
 $(function () {
     $('video').on('click', function(event) {
