@@ -539,7 +539,7 @@ form.newsletterForm input[type=submit]:hover {
 .contactForm input, .contactForm textarea {
   color: #1A1B1D;
   padding: 15px;
-  width: 70%;
+  width: 44%;
   border: none;
   margin: 15px 0 15px 0;
   font-family: inherit;
@@ -558,6 +558,7 @@ form.newsletterForm input[type=submit]:hover {
 }
 .contactForm textarea {
   border-radius: 5px;
+  height: 181px;
 }
 .contactForm input[type=submit] {
   text-transform: uppercase;
