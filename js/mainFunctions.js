@@ -68,9 +68,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
         // Prepare the email parameters
         const templateParams = {
-            name: name,
-            email: email,
-            message: message
+            from_name: name,
+            to_name: 'Balaganist', // You can customize this as needed
+            message: message,
+            from_email: email // Include this if your template uses it
         };
 
         // Send email using EmailJS
