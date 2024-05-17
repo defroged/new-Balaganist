@@ -66,15 +66,25 @@ document.addEventListener('DOMContentLoaded', (event) => {
             return; // Exit the function if the math answer is incorrect
         }
 
-        // If everything is correct, you can proceed with form submission
-        // For example, sending the data to a server
-        console.log("Form submitted successfully!");
-        console.log("Name:", name);
-        console.log("Email:", email);
-        console.log("Message:", message);
+        // Prepare the email parameters
+        const templateParams = {
+            name: name,
+            email: email,
+            message: message
+        };
 
-        // Clear the form fields
-        document.getElementById('contactForm').reset();
+        // Send email using EmailJS
+        emailjs.send('service_iygu334', 'template_7o3zivj', templateParams)
+            .then(function(response) {
+                console.log('SUCCESS!', response.status, response.text);
+                alert("Form submitted successfully!");
+
+                // Clear the form fields
+                document.getElementById('contactForm').reset();
+            }, function(error) {
+                console.log('FAILED...', error);
+                alert("Failed to send the email. Please try again.");
+            });
     });
 });
 
