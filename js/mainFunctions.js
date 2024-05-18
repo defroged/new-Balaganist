@@ -108,6 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const retourNewsFormulaire = document.getElementById('retourNewsFormulaire');
     const newsletterForm = document.querySelector('.newsletterForm');
     const regexMail = /^([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$/;
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwyXVrx9C6F21BYfwlRltWc0kO3M4j5RRVzXu7zRId2fKQk3GQXIREOX82YikCbJ0HU/exec?authuser=0';
 
     emailNews.addEventListener('blur', function () {
         validateEmail();
@@ -128,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
     newsletterForm.addEventListener('submit', function (e) {
         e.preventDefault();
         if (validateEmail() && validateRobotCheck()) {
-            simulateFormSubmission();
+            submitForm();
         } else {
             alert('Please correct the errors before submitting the form.');
         }
@@ -159,12 +160,28 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function simulateFormSubmission() {
-        newsletterForm.style.display = 'none';
-        retourNewsFormulaire.style.cssText = "padding: 10px; margin-top: 60px; margin-bottom: 60px; margin-left: auto; margin-right: auto; color: white; font-size: 1rem; text-align: center;";
-        retourNewsFormulaire.innerHTML = 'Thank you for subscribing to our newsletter!';
-        emailNews.value = '';
-        checkRobotNews.value = '';
+    function submitForm() {
+        const mail = emailNews.value;
+        const checkRobot = checkRobotNews.value;
+
+        fetch(scriptURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ emailNews: mail, checkRobotNews: checkRobot })
+        })
+        .then(response => response.text())
+        .then(data => {
+            newsletterForm.style.display = 'none';
+            retourNewsFormulaire.style.cssText = "padding: 10px; margin-top: 60px; margin-bottom: 60px; margin-left: auto; margin-right: auto; color: white; font-size: 1rem; text-align: center;";
+            retourNewsFormulaire.innerHTML = 'Thank you for subscribing to our newsletter!';
+            emailNews.value = '';
+            checkRobotNews.value = '';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
     }
 });
 
