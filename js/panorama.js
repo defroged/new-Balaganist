@@ -28,10 +28,6 @@ document.addEventListener("DOMContentLoaded", function() {
   let targetLeft = initialPosition;
   let currentLeft = initialPosition;
 
-  function easeOutQuad(t) {
-    return t * (2 - t);
-  }
-
   function handleScroll() {
     const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
     const scrollPercentage = window.pageYOffset / scrollHeight;
@@ -41,15 +37,20 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   function animate() {
-    currentLeft += (targetLeft - currentLeft) * (window.innerWidth <= 767 ? 0.2 : 0.1); // Adjust easing factor for mobile
+    currentLeft += (targetLeft - currentLeft) * 0.1;
     adjustImagePositions(currentLeft);
     requestAnimationFrame(animate);
   }
 
+  let previousHeight = window.innerHeight;
+
   window.addEventListener("resize", function() {
-    initialPosition = updateInitialPosition();
-    targetLeft = initialPosition;
-    currentLeft = initialPosition;
+    if (window.innerHeight !== previousHeight) {
+      initialPosition = updateInitialPosition();
+      targetLeft = initialPosition;
+      currentLeft = initialPosition;
+      previousHeight = window.innerHeight;
+    }
   });
 
   window.addEventListener("scroll", handleScroll);
