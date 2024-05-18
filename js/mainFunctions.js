@@ -161,28 +161,31 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function submitForm() {
-        const mail = emailNews.value;
-        const checkRobot = checkRobotNews.value;
+    const mail = emailNews.value;
+    const checkRobot = checkRobotNews.value;
 
-        fetch(scriptURL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ emailNews: mail, checkRobotNews: checkRobot })
-        })
-        .then(response => response.text())
-        .then(data => {
-            newsletterForm.style.display = 'none';
-            retourNewsFormulaire.style.cssText = "padding: 10px; margin-top: 60px; margin-bottom: 60px; margin-left: auto; margin-right: auto; color: white; font-size: 1rem; text-align: center;";
-            retourNewsFormulaire.innerHTML = 'Thank you for subscribing to our newsletter!';
-            emailNews.value = '';
-            checkRobotNews.value = '';
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    }
+    fetch(scriptURL, {
+        method: 'POST',
+        redirect: 'follow', // Instructs fetch to follow redirects, which can help in some CORS scenarios
+        headers: {
+            'Content-Type': 'text/plain;charset=utf-8' // Change to avoid preflight check
+        },
+        body: JSON.stringify({ emailNews: mail, checkRobotNews: checkRobot })
+    })
+    .then(response => response.text())
+    .then(data => {
+        newsletterForm.style.display = 'none';
+        retourNewsFormulaire.style.cssText = "padding: 10px; margin-top: 60px; margin-bottom: 60px; margin-left: auto; margin-right: auto; color: white; font-size: 1rem; text-align: center;";
+        retourNewsFormulaire.innerHTML = 'Thank you for subscribing to our newsletter!';
+        emailNews.value = '';
+        checkRobotNews.value = '';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to subscribe. Please try again later.');
+    });
+}
+
 });
 
 
