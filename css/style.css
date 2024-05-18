@@ -24,11 +24,12 @@ a {
 }
 
 body {
-  font-family: "Cinzel", serif;
-  font-display: swap;
+  font-family: "Quicksand", sans-serif;
+  font-optical-sizing: auto;
   font-size: 1rem;
-  color: #FEFEFE;
+  font-weight: <weight>;
   font-size: 16px;
+  font-style: normal;
   background-color: #1A1B1D;
 }
 
