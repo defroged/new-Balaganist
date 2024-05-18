@@ -45,11 +45,14 @@ document.addEventListener("DOMContentLoaded", function() {
   let previousHeight = window.innerHeight;
 
   window.addEventListener("resize", function() {
-    if (window.innerHeight !== previousHeight) {
-      initialPosition = updateInitialPosition();
-      targetLeft = initialPosition;
-      currentLeft = initialPosition;
-      previousHeight = window.innerHeight;
+    const newHeight = window.innerHeight;
+    if (newHeight !== previousHeight) {
+      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrollPercentage = window.pageYOffset / scrollHeight;
+      const imgWidth = img1.offsetWidth;
+      const startPosition = -imgWidth / 3;
+      targetLeft = startPosition + (-imgWidth * scrollPercentage);
+      previousHeight = newHeight;
     }
   });
 
