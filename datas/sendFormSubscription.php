@@ -12,19 +12,19 @@
 				$texte = stripslashes($texte);
 
 				/// Recipient and subject of the message
-				$destinataire = "contact@gmail.com"; // input your email here
-				$objet = "Newsletter subscription from your < site name >"; // input your domain name here
+				$destinataire = "connect@balaganist.com"; // input your email here
+				$objet = "Newsletter subscription from your < balaganist.com >"; // input your domain name here
 
 				//Headers
 	      $headers = array(
 	                      'Content-type' => 'text/html',
-	                      'From' => 'form@yourbandname.com', // input your email from here
+	                      'From' => 'connect@balaganist.com', // input your email from here
 	                      'X-Mailer' => 'PHP/' . phpversion()
 	                  );
 
 				// Send the message then return data to current page with ajax
 				if ($checkRobot == 7) {
-					$conf = ini_set('mail', 'mail.gmail.com'); // update yours informations here
+					$conf = ini_set('mail', 'mail.balaganist.com'); // update yours informations here
 					$sending_ok = mail($destinataire, $objet, $texte, $headers);
 					if ($sending_ok) {
 							echo "<p class=\"hardLight\">Thank you for your registration !</p>";
