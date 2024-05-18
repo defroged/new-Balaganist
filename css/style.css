@@ -260,7 +260,7 @@ h1 {
 }
 
 #header-image {
-  width: 58%;
+  width: 95%;
   top: 43%;
   position: absolute;
   left: 50%;
@@ -384,7 +384,7 @@ p.miniPara {
   max-width: 250px;
   height: 250px;
   opacity: 0;
-  background-color: rgba(244, 89, 30, 0.7);
+  background-color: rgba(225, 187, 45, 0.44);
   z-index: 5;
   transition: all ease-in-out 150ms;
 }
@@ -755,8 +755,9 @@ button[name=backSite] {
     }
 	
 #header-image {
-	width: 90%;
-    left: 41%;	
+	width: 100%;
+    left: 50%;
+    margin-top: 46px;	
 }
 
   h2#slogan {
@@ -794,9 +795,10 @@ button[name=backSite] {
   .hardLight {
     width: 100%;
 	margin: 70px auto;
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
-    padding: 70px; /* Same as the margin to extend the background */
-    box-sizing: border-box; /* Includes padding in the width calculation */
+    background-color: rgba(0, 0, 0, 0.5); 
+    padding: 24px; 
+    box-sizing: border-box; 
+	border-radius: 16px;
   }
 
 .menu {
