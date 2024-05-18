@@ -552,7 +552,7 @@ form.newsletterForm input[type=submit]:hover {
 .contactForm label, .contactForm p.labelP {
   color: white;
   font-size: 3vh;
-  font-weight: 900;
+  font-weight: 200;
 }
 .contactForm p.labelP {
   margin: 20px auto;
