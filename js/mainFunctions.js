@@ -247,8 +247,12 @@ $(function () {
 
 // Locations
 $(function () {
-    $(".card").on('click', () => {window.location.href = "https://www.instagram.com/"});
-})
+  $(".card").on('click', function () {
+    var url = $(this).data('url');
+    window.location.href = url;
+  });
+});
+
 // Location socials
 $(function () {
     $('.facebook').on('click', function(event) {
