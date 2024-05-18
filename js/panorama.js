@@ -25,7 +25,6 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   let initialPosition = updateInitialPosition();
-  let lastScrollY = window.pageYOffset;
   let targetLeft = initialPosition;
   let currentLeft = initialPosition;
 
@@ -42,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   function animate() {
-    currentLeft += (targetLeft - currentLeft) * 0.1;
+    currentLeft += (targetLeft - currentLeft) * (window.innerWidth <= 767 ? 0.2 : 0.1); // Adjust easing factor for mobile
     adjustImagePositions(currentLeft);
     requestAnimationFrame(animate);
   }
