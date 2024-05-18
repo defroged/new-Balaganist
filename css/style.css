@@ -708,6 +708,7 @@ button[name=backSite] {
   opacity: 0;
   transform: translate3d(-3vw, 0, 0);
   transition: all ease-in-out 1s;
+  color: white;
 }
 
 .animatableOpacity {
