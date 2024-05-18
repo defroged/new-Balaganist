@@ -740,6 +740,18 @@ button[name=backSite] {
     bottom: 45%;
   }
 
+.panorama {
+        width: 300%; /* Adjusted to fit mobile screen better */
+    }
+
+    .panorama img {
+        width: 150%; /* Adjusted width for mobile screen */
+    }
+
+    #img2 {
+        left: 150%; /* Adjusted position for mobile screen */
+    }
+	
 #header-image {
 	width: 90%;
     left: 41%;	
