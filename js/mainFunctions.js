@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const retourNewsFormulaire = document.getElementById('retourNewsFormulaire');
     const newsletterForm = document.querySelector('.newsletterForm');
     const regexMail = /^([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$/;
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwyXVrx9C6F21BYfwlRltWc0kO3M4j5RRVzXu7zRId2fKQk3GQXIREOX82YikCbJ0HU/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbx1vEafQ6R8i2vdNijdM-Kz3Cpb6IRNfoWVhX77cEryxa13Fq7bfmeem4GAO-5V0Z8Q/exec';
 
     emailNews.addEventListener('blur', function () {
         validateEmail();
