@@ -170,23 +170,24 @@
     </section>
 
     <section class="blocNewsletter">
-      <h2 class="miniTitle animatableY">Keep updated</h2>
-      <p class="miniPara animatableY"><br />Don't miss the next shows</p>
-      <form class="newsletterForm  animatableY">
-        <input aria-label="Entrez votre email" type="email" name="emailNews" id="emailNews" value="" placeholder="Email" required>
+    <h2 class="miniTitle animatableY">Keep updated</h2>
+    <p class="miniPara animatableY"><br />Don't miss the next shows</p>
+    <form class="newsletterForm animatableY">
+        <input aria-label="Enter your email" type="email" name="emailNews" id="emailNews" value="" placeholder="Email" required>
         <input type="submit" name="valider" value="Subscribe">
-        <div id="hideNews">
-          <div>
-            <label class="miniPara" for="checkRobotNews">Are you human?</label>
-          </div>
-          <div>
-            <input type="number" id="checkRobotNews" name="checkRobotNews" value="" placeholder="What is 4 + 3?">
-          </div>
+        <div id="hideNews" style="display: none;">
+            <div>
+                <label class="miniPara" for="checkRobotNews">Are you human?</label>
+            </div>
+            <div>
+                <input type="number" id="checkRobotNews" name="checkRobotNews" value="" placeholder="What is 4 + 3?">
+            </div>
         </div>
-        <p class="hidePara" aria-hidden="true" id="helpMailNews"></p>
-      </form>
-      <p aria-hidden="true" id="retourNewsFormulaire"></p>
-    </section>
+        <p class="hidePara" aria-hidden="true" id="helpMailNews" style="display: none;"></p>
+    </form>
+    <p aria-hidden="true" id="retourNewsFormulaire"></p>
+</section>
+
 
 
   <a id="music"></a>

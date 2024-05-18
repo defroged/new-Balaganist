@@ -100,63 +100,74 @@ $(function () {
 })
 
 
-// Form newsletter input blur
-$(function () {
-  let regexMail = /^([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$/;
-    $('#emailNews').on('blur input', function(event) {
-        //event.preventDefault();
-        let mailEntry = $('#emailNews').val();
+document.addEventListener('DOMContentLoaded', function () {
+    const emailNews = document.getElementById('emailNews');
+    const checkRobotNews = document.getElementById('checkRobotNews');
+    const helpMailNews = document.getElementById('helpMailNews');
+    const hideNews = document.getElementById('hideNews');
+    const retourNewsFormulaire = document.getElementById('retourNewsFormulaire');
+    const newsletterForm = document.querySelector('.newsletterForm');
+    const regexMail = /^([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$/;
+
+    emailNews.addEventListener('blur', function () {
+        validateEmail();
+    });
+
+    emailNews.addEventListener('input', function () {
+        validateEmail();
+    });
+
+    checkRobotNews.addEventListener('blur', function () {
+        validateRobotCheck();
+    });
+
+    checkRobotNews.addEventListener('input', function () {
+        validateRobotCheck();
+    });
+
+    newsletterForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (validateEmail() && validateRobotCheck()) {
+            simulateFormSubmission();
+        } else {
+            alert('Please correct the errors before submitting the form.');
+        }
+    });
+
+    function validateEmail() {
+        const mailEntry = emailNews.value;
         if (!mailEntry.match(regexMail)) {
-          $('#helpMailNews').text('Incorrect email address').hide().show();
-          $('#hideNews').hide();
+            helpMailNews.textContent = 'Incorrect email address';
+            helpMailNews.style.display = 'block';
+            hideNews.style.display = 'none';
+            return false;
         } else {
-          $('#helpMailNews').slideUp(100, function () {
-            // Apparition checkRobotNews
-            $('#hideNews').fadeIn();
-          });
+            helpMailNews.style.display = 'none';
+            hideNews.style.display = 'block';
+            return true;
         }
-    });
-    $('#checkRobotNews').on('blur input', function(event) {
-        if ($('#checkRobotNews').val() != 7) {
-          $('#helpMailNews').text('Incorrect result').hide().show();
+    }
+
+    function validateRobotCheck() {
+        if (checkRobotNews.value != 7) {
+            helpMailNews.textContent = 'Incorrect result';
+            helpMailNews.style.display = 'block';
+            return false;
         } else {
-          $('#helpMailNews').slideUp(100, function () {
-          });
+            helpMailNews.style.display = 'none';
+            return true;
         }
-    });
-})
+    }
 
-// Form newsletter ajax send
-$(function () {
-      $('.newsletterForm').on('submit', function (e) {
-          e.preventDefault();
-          let mail = $('#emailNews').val();
-          let checkRobot = $('#checkRobotNews').val();
-          if ($('#checkRobotNews').val() == 7 ) {
-              $.post('../datas/sendFormSubscription.php',
-                      { mail: mail,
-                        checkRobot: checkRobot },
-                        function(data, textStatus, xhr) {
-                            $('.newsletterForm').fadeOut(400, function() {
-                                $('#retourNewsFormulaire').css({"padding": "10px",
-                                                            "margin-top": "60px",
-                                                            "margin-bottom": "60px",
-                                                            "margin-left": "auto",
-                                                            "margin-right": "auto",
-                                                            "color": "white",
-                                                            "font-size": "1rem",
-                                                            "text-align": "center"});
-                                $('#retourNewsFormulaire').html(data);
-                            });
-                            $('#emailNews').val('');
-                            $('#checkRobotNews').val('');
-                          });
-            } else {
-                alert('Incorrect anti robot check result !');
-            }
+    function simulateFormSubmission() {
+        newsletterForm.style.display = 'none';
+        retourNewsFormulaire.style.cssText = "padding: 10px; margin-top: 60px; margin-bottom: 60px; margin-left: auto; margin-right: auto; color: white; font-size: 1rem; text-align: center;";
+        retourNewsFormulaire.innerHTML = 'Thank you for subscribing to our newsletter!';
+        emailNews.value = '';
+        checkRobotNews.value = '';
+    }
+});
 
-      })
-})
 
 // Animations on scroll
 $(function () {
