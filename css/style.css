@@ -1,5 +1,5 @@
 html {
-  /*scroll-behavior: smooth;*/
+  scroll-behavior: smooth;
 }
 
 *, ::before, ::after {
@@ -83,7 +83,7 @@ body {
 }
 
 .menu {
-  position: fixed;
+  position: absolute;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -130,7 +130,7 @@ body {
 }
 
 .ss-menu {
-  position: fixed;
+  position: absolute;
   display: flex;
   justify-content: center;
   align-items: center;
