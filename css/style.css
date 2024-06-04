@@ -1,5 +1,5 @@
 html {
-  scroll-behavior: smooth;
+  /*scroll-behavior: smooth;*/
 }
 
 *, ::before, ::after {
@@ -33,17 +33,14 @@ body {
 
 }
 
-.mainView {
-  position: relative; 
-}
 
 .panorama {
-  position: sticky;
-  top: 0;
-  left: 0;
-  width: 200%;       
-  height: 100vh;
-  z-index: -1;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200%;       
+    height: 100vh;
+    z-index: -1;
 }
 
 .panorama.active {
@@ -86,11 +83,11 @@ body {
 }
 
 .menu {
-  position: sticky;
-  top: 5%; /* You can change this value if necessary */
+  position: fixed;
   display: flex;
   justify-content: center;
   align-items: center;
+  top: 5%;
   right: 5%;
   width: 50px;
   height: 50px;
@@ -100,7 +97,6 @@ body {
   cursor: pointer;
   z-index: 6;
 }
-
 .menu .line {
   position: absolute;
   left: 25%;
