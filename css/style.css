@@ -26,7 +26,6 @@ a {
 body {
   font-family: "Lora", serif;
   font-optical-sizing: auto;
-  font-size: 1rem;
   font-weight: <weight>;
   font-size: 16px;
   font-style: normal;
@@ -34,33 +33,36 @@ body {
 
 }
 
+.mainView {
+  position: relative; 
+}
 
 .panorama {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 200%;       /* Still need this to handle the two-image panorama effect */
-    height: 100vh;
-    z-index: -1;
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 200%;       
+  height: 100vh;
+  z-index: -1;
 }
 
 .panorama.active {
-    cursor: grabbing;  /* Changes cursor to grabbing when active */
+    cursor: grabbing;  
 }
 
 .panorama img {
-    position: absolute;/* Absolute positioning to place images precisely */
+    position: absolute;
     width: 120%;
-    height: 100%;      /* Each image stretches to fill the container height */
-    object-fit: cover; /* Ensures images cover their area without distorting */
+    height: 100%;      
+    object-fit: cover; 
 }
 
 #img1 {
-    left: 0;           /* Aligns the first image to the left edge of the panorama */
+    left: 0;           
 }
 
 #img2 {
-    left: 100%;        /* Positions the second image immediately to the right of the first */
+    left: 100%;        
 }
 
 
@@ -84,11 +86,11 @@ body {
 }
 
 .menu {
-  position: fixed;
+  position: sticky;
+  top: 5%; /* You can change this value if necessary */
   display: flex;
   justify-content: center;
   align-items: center;
-  top: 5%;
   right: 5%;
   width: 50px;
   height: 50px;
@@ -98,6 +100,7 @@ body {
   cursor: pointer;
   z-index: 6;
 }
+
 .menu .line {
   position: absolute;
   left: 25%;
@@ -745,15 +748,15 @@ button[name=backSite] {
   }
 
 .panorama {
-        width: 300%; /* Adjusted to fit mobile screen better */
+        width: 300%; 
     }
 
     .panorama img {
-        width: 150%; /* Adjusted width for mobile screen */
+        width: 150%; 
     }
 
     #img2 {
-        left: 150%; /* Adjusted position for mobile screen */
+        left: 150%; 
     }
 	
 #header-image {
