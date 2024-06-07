@@ -29,10 +29,13 @@ body {
   font-weight: <weight>;
   font-size: 16px;
   font-style: normal;
+ 
+}
+
+.content-wrapper {
   background-color: #1A1B1D;
   height: 95vh;
   max-height: 95vh;
-
 }
 
 

@@ -1,12 +1,3 @@
-	var bg = $("#img1, #img2");		
-
-function resizeBackground() {
-    bg.height($(window).height() + 60);
-}
-
-$(window).resize(resizeBackground);
-resizeBackground();
-
 
 // Toggle class menu
 $(function () {
