@@ -254,14 +254,17 @@
     <script defer src="js/mainFunctions.js"></script>
 	<script defer src="js/panorama.js"></script>
 	<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+	
 	<script>
-	var bg = jQuery("body");
-jQuery(window).resize("resizeBackground");
+	var bg = $("#img1, #img2");		
+
 function resizeBackground() {
-    bg.height(jQuery(window).height());
+    bg.height($(window).height() + 60);
 }
+
+$(window).resize(resizeBackground);
 resizeBackground();
-</script>
+	</script>
 <script>
     (function(){
         emailjs.init("jGG5iqCZS9BqdhQuB"); 
