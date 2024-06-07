@@ -46,19 +46,8 @@ $(function () {
   if (!window.location.pathname.match("mentions")) {
     $('.rellax').css('transform', 'translateX(-50%)');
     var rellax = new Rellax('.rellax');
-
-    // Function to update rellax instance
-    function updateRellax() {
-      rellax.destroy(); // Destroy the existing instance
-      rellax = new Rellax('.rellax'); // Re-initialize Rellax
-    }
-
-    // Add event listeners
-    $(window).on('resize orientationchange', function() {
-      updateRellax();
-    });
   }
-});
+})
 
 
 // new Form
