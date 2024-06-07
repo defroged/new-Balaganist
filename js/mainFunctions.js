@@ -42,13 +42,14 @@ $(function () {
 })
 
 // Parallax effect and gsap
+/*
 $(function () {
   if (!window.location.pathname.match("mentions")) {
     $('.rellax').css('transform', 'translateX(-50%)');
     var rellax = new Rellax('.rellax');
   }
 })
-
+*/
 
 // new Form
 document.addEventListener('DOMContentLoaded', (event) => {
