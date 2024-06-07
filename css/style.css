@@ -33,12 +33,12 @@ body {
   font-weight: <weight>;
   font-size: 16px;
   font-style: normal;
+  height: 100vh; 
+  overflow-y: scroll; 
 }
 
 .content-wrapper {
   background-color: #1A1B1D;
-  height: calc(var(--vh));
-  max-height: calc(var(--vh));
 }
 
 
