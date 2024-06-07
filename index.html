@@ -261,5 +261,17 @@
     })();
 </script>
 </div>
+<script>
+  function setViewportHeight() {
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }
+  
+  // Set on document load
+  setViewportHeight();
+
+  // Update during resize
+  window.addEventListener('resize', setViewportHeight);
+</script>
   </body>
   </html>
