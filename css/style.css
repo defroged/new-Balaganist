@@ -35,12 +35,8 @@ body {
   font-style: normal;
   height: 100vh; 
   overflow-y: scroll; 
-}
-
-.content-wrapper {
   background-color: #1A1B1D;
 }
-
 
 .panorama {
     position: fixed;
