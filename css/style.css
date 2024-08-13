@@ -38,7 +38,7 @@ body {
   background-color: #1A1B1D;
 }
 
- /* Loading overlay */
+ /* Loading */
   #loading-overlay {
     position: fixed;
     top: 0;
@@ -52,7 +52,6 @@ body {
     z-index: 9999;
   }
 
-  /* Progress bar container */
   #progress-bar-container {
     width: 80%;
     max-width: 600px;
@@ -61,7 +60,6 @@ body {
     overflow: hidden;
   }
 
-  /* Progress bar fill */
   #progress-bar {
     width: 0;
     height: 3px;
@@ -69,6 +67,13 @@ body {
     transition: width 0.3s ease-in-out;
   }
 
+#loading-text {
+  text-align: center;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+/* panorama */
 .panorama {
     position: fixed;
     top: 0;
@@ -96,8 +101,6 @@ body {
 #img2 {
     left: 100%;        
 }
-
-
 
 
 .shareBtn {
