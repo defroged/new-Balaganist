@@ -2,50 +2,60 @@ document.addEventListener('DOMContentLoaded', function () {
     const loadingOverlay = document.getElementById('loading-overlay');
     const progressBar = document.getElementById('progress-bar');
 
-    const totalResources = document.images.length + document.scripts.length;
-    let loadedResources = 0;
+    // Track loading state with a fallback
+    const resourcePromises = [];
 
-    function updateProgressBar() {
-        const progress = Math.round((loadedResources / totalResources) * 100);
-        progressBar.style.width = progress + '%';
-
-        if (loadedResources >= totalResources) {
-            setTimeout(() => {
-                loadingOverlay.style.display = 'none';
-            }, 500); // Delay to smoothly transition out the loading screen
-        }
+    function trackResourceLoad(resource) {
+        return new Promise((resolve) => {
+            if (resource.complete) {
+                resolve();
+            } else {
+                resource.addEventListener('load', resolve, {once: true});
+                resource.addEventListener('error', resolve, {once: true});
+            }
+        });
     }
 
-    function resourceLoaded() {
-        loadedResources++;
-        updateProgressBar();
-    }
-
-    // Pre-load images
+    // Track images and scripts with promises
     Array.from(document.images).forEach(img => {
-        if (img.complete) {
-            resourceLoaded();
-        } else {
-            img.addEventListener('load', resourceLoaded, { once: true });
-            img.addEventListener('error', resourceLoaded, { once: true });
-        }
+        resourcePromises.push(trackResourceLoad(img));
     });
 
-    // Monitor scripts loaded by adding a load and error event listener
     const scripts = document.getElementsByTagName('script');
     Array.from(scripts).forEach(script => {
-        if (script.readyState === 'complete') {
-            resourceLoaded();
-        } else {
-            script.addEventListener('load', resourceLoaded, { once: true });
-            script.addEventListener('error', resourceLoaded, { once: true });
-        }
+        resourcePromises.push(trackResourceLoad(script));
     });
 
-    // Ensure the progress bar hides if it hangs (failsafe after 5 seconds)
-    setTimeout(() => {
-        loadingOverlay.style.display = 'none';
-    }, 5000);
+    // When all resources finish loading
+    Promise.all(resourcePromises)
+        .then(() => {
+            updateProgressBar(100);
+            setTimeout(() => loadingOverlay.style.display = 'none', 500);
+        })
+        .catch(() => {
+            // In case any resources have errors, defer hiding the overlay
+            updateProgressBar(100);
+            setTimeout(() => loadingOverlay.style.display = 'none', 500);
+        });
+
+    // Simulate and update the progress bar incrementally 
+    let progress = 0;
+    const updateInterval = 50; // Time in ms
+    const updateStep = 2; // Progress step percentage
+
+    function simulateProgress() {
+        progress = Math.min(progress + updateStep, 100);
+        updateProgressBar(progress);
+        if (progress < 100) {
+            setTimeout(simulateProgress, updateInterval);
+        }
+    }
+
+    simulateProgress();
+
+    function updateProgressBar(percent) {
+        progressBar.style.width = percent + '%';
+    }
 });
 
 // Toggle class menu
