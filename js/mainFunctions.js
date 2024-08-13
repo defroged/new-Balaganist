@@ -2,60 +2,42 @@ document.addEventListener('DOMContentLoaded', function () {
     const loadingOverlay = document.getElementById('loading-overlay');
     const progressBar = document.getElementById('progress-bar');
 
-    // Track loading state with a fallback
-    const resourcePromises = [];
-
-    function trackResourceLoad(resource) {
-        return new Promise((resolve) => {
-            if (resource.complete) {
-                resolve();
-            } else {
-                resource.addEventListener('load', resolve, {once: true});
-                resource.addEventListener('error', resolve, {once: true});
-            }
-        });
-    }
-
-    // Track images and scripts with promises
-    Array.from(document.images).forEach(img => {
-        resourcePromises.push(trackResourceLoad(img));
-    });
-
-    const scripts = document.getElementsByTagName('script');
-    Array.from(scripts).forEach(script => {
-        resourcePromises.push(trackResourceLoad(script));
-    });
-
-    // When all resources finish loading
-    Promise.all(resourcePromises)
-        .then(() => {
-            updateProgressBar(100);
-            setTimeout(() => loadingOverlay.style.display = 'none', 500);
-        })
-        .catch(() => {
-            // In case any resources have errors, defer hiding the overlay
-            updateProgressBar(100);
-            setTimeout(() => loadingOverlay.style.display = 'none', 500);
-        });
-
-    // Simulate and update the progress bar incrementally 
-    let progress = 0;
-    const updateInterval = 50; // Time in ms
-    const updateStep = 2; // Progress step percentage
-
-    function simulateProgress() {
-        progress = Math.min(progress + updateStep, 100);
-        updateProgressBar(progress);
-        if (progress < 100) {
-            setTimeout(simulateProgress, updateInterval);
+    // New: track individual loading with event listeners
+    function resourceLoad(resource, callback) {
+        if (resource.complete || resource.readyState === 'complete') {
+            callback();
+        } else {
+            resource.onload = callback;
+            resource.onerror = callback; // Consider failed loads to avoid freezing
         }
     }
 
-    simulateProgress();
+    const resources = [...document.images, ...document.getElementsByTagName('script')];
+    const totalResources = resources.length;
+    let loadedResources = 0;
 
-    function updateProgressBar(percent) {
-        progressBar.style.width = percent + '%';
+    function onResourceLoad() {
+        loadedResources++;
+        const percent = (loadedResources / totalResources) * 100;
+        progressBar.style.width = `${percent}%`;
+
+        if (loadedResources === totalResources) {
+            setTimeout(() => loadingOverlay.style.display = 'none', 500); // Ensure overlay transition
+        }
     }
+
+    resources.forEach(resource => resourceLoad(resource, onResourceLoad));
+
+    // Retry mechanism for failed resource loads
+    const abortTimeout = 3000; // 3 seconds max wait for problematic resources
+    setTimeout(() => {
+        // Making sure we unlock the screen even if some delaying occurred
+        if (loadingOverlay.style.display !== 'none') {
+            console.warn('Loading process was delayed due to network issues or resource errors.');
+            progressBar.style.width = '100%';
+            loadingOverlay.style.display = 'none';
+        }
+    }, abortTimeout);
 });
 
 // Toggle class menu
