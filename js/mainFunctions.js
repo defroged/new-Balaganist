@@ -1,53 +1,51 @@
-
 document.addEventListener('DOMContentLoaded', function () {
     const loadingOverlay = document.getElementById('loading-overlay');
     const progressBar = document.getElementById('progress-bar');
 
-    // Function to update the progress bar
-    function updateProgressBar(percent) {
-        progressBar.style.width = percent + '%';
+    const totalResources = document.images.length + document.scripts.length;
+    let loadedResources = 0;
+
+    function updateProgressBar() {
+        const progress = Math.round((loadedResources / totalResources) * 100);
+        progressBar.style.width = progress + '%';
+
+        if (loadedResources >= totalResources) {
+            setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+            }, 500); // Delay to smoothly transition out the loading screen
+        }
     }
 
-    // Calculate the loading progress based on images and page loading
-    function calculateLoadProgress() {
-        const totalResources = document.images.length + document.scripts.length;
-        let loadedResources = 0;
-
-        const updateProgress = () => {
-            loadedResources++;
-            const progress = Math.round((loadedResources / totalResources) * 100);
-            updateProgressBar(progress);
-            if (progress === 100) {
-                setTimeout(() => {
-                    loadingOverlay.style.display = 'none';
-                }, 500); // Slight delay for smoother transition
-            }
-        };
-
-        // Listen for the 'load' event on each image and script
-        Array.from(document.images).forEach(img => {
-            if (img.complete) { // Already loaded
-                updateProgress();
-            } else { // Listen for the 'load' event
-                img.addEventListener('load', updateProgress, {once: true});
-                img.addEventListener('error', updateProgress, {once: true});
-            }
-        });
-
-        // Listen for the 'load' event on all scripts
-        const scripts = document.getElementsByTagName('script');
-        Array.from(scripts).forEach(script => {
-            if (script.readyState === 'complete') {
-                updateProgress();
-            } else {
-                script.addEventListener('load', updateProgress, {once: true});
-                script.addEventListener('error', updateProgress, {once: true});
-            }
-        });
+    function resourceLoaded() {
+        loadedResources++;
+        updateProgressBar();
     }
 
-    // Calculate progress once DOM is ready
-    calculateLoadProgress();
+    // Pre-load images
+    Array.from(document.images).forEach(img => {
+        if (img.complete) {
+            resourceLoaded();
+        } else {
+            img.addEventListener('load', resourceLoaded, { once: true });
+            img.addEventListener('error', resourceLoaded, { once: true });
+        }
+    });
+
+    // Monitor scripts loaded by adding a load and error event listener
+    const scripts = document.getElementsByTagName('script');
+    Array.from(scripts).forEach(script => {
+        if (script.readyState === 'complete') {
+            resourceLoaded();
+        } else {
+            script.addEventListener('load', resourceLoaded, { once: true });
+            script.addEventListener('error', resourceLoaded, { once: true });
+        }
+    });
+
+    // Ensure the progress bar hides if it hangs (failsafe after 5 seconds)
+    setTimeout(() => {
+        loadingOverlay.style.display = 'none';
+    }, 5000);
 });
 
 // Toggle class menu
