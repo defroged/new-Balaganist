@@ -956,6 +956,29 @@ main,
   margin-top: clamp(54px, 8vw, 90px);
 }
 
+.guest-musicians {
+  position: relative;
+  z-index: 1;
+  margin-top: clamp(60px, 9vw, 110px);
+  padding-top: clamp(45px, 6vw, 70px);
+  border-top: 1px solid var(--line);
+}
+
+.guest-musicians__heading h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.5rem);
+  line-height: 1.2;
+}
+
+.member-grid--guests {
+  margin-top: 32px;
+}
+
+.guest-card {
+  cursor: default;
+}
+
 .member-card {
   position: relative;
   min-width: 0;
