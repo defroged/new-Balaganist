@@ -3,6 +3,115 @@
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  const memberProfiles = {
+    ron: {
+      name: "Ron J. Ward",
+      role: "Guitars · Composition",
+      image: "img/guitar-rec.jpg",
+      alt: "Ron J. Ward playing guitar on stage",
+      bio: "Ron J. Ward is a Japan-based composer, guitarist, producer and founder of Balaganist. His work spans game and media music, sound design, mixing and mastering, but rhythm is at the centre of it all—especially odd meters and grooves that feel natural rather than mathematical. In Balaganist, he writes the music and shapes its collision of progressive rock, jazz and sounds from around the world.",
+      links: [
+        { label: "Website", url: "https://ronjward.com/" },
+        { label: "Instagram", url: "https://www.instagram.com/ronjward" },
+        { label: "YouTube", url: "https://www.youtube.com/@RonJWard" }
+      ]
+    },
+
+    joe: {
+      name: "Joe Muntal",
+      role: "Drums",
+      image: "img/drums-rec.jpg",
+      alt: "Joe Muntal playing drums on stage",
+      bio: "Joe Muntal is a Tokyo-based drummer whose playing combines tight ensemble control with the punch and detail needed for Balaganist’s shifting meters. Beyond the band, he creates drum covers and arrangements of video-game music, bringing complex programmed material to life on an acoustic kit. That mixture of precision, groove and gamer curiosity makes him a natural fit for Balaganist.",
+      links: [
+        { label: "Instagram", url: "https://www.instagram.com/dr.bluntz" },
+        { label: "Twitter", url: "https://twitter.com/JoeMuntal" },
+        { label: "YouTube", url: "https://www.youtube.com/c/JoeMuntal" }
+      ]
+    },
+
+    furuto: {
+      name: "Furuto Koshino",
+      role: "Bass",
+      image: "img/bass-rec.jpg",
+      alt: "Furuto Koshino playing bass",
+      bio: "Furuto Koshino is a Japanese bassist working on both contrabass and electric bass. His performing world ranges through jazz, pop, fusion, R&B, Brazilian, Latin and gospel music, and he also leads his own groups. In Balaganist, he anchors the rhythmic puzzles while keeping the music warm, mobile and deeply grounded.",
+      links: [
+        { label: "Instagram", url: "https://www.instagram.com/furutokoshino_bass" },
+        { label: "Ameblo", url: "https://ameblo.jp/swingman-bass/" }
+      ]
+    },
+
+    andrew: {
+      name: "Andrew Shive",
+      role: "Violin",
+      image: "img/vln-rec.jpg",
+      alt: "Andrew Shive playing violin on stage",
+      bio: "Andrew Shive is a versatile violinist active in Japan’s live and recording scene. His credits range from intimate session work to first-violin performance in a large orchestral production for MY FIRST STORY. With Balaganist, his violin can carry a lyrical melody, cut through the band like a lead voice or add the folk-coloured edge at the heart of its sound.",
+      links: [
+        { label: "Facebook", url: "https://www.facebook.com/andrew.shive/about" }
+      ]
+    },
+
+    cody: {
+      name: "Cody Carpenter",
+      role: "Keyboard · Piano",
+      image: "img/cody.jpg",
+      alt: "Cody Carpenter playing keyboards",
+      bio: "Cody Carpenter is an American keyboardist and composer whose work spans progressive rock, jazz fusion, electronic music, film and video-game scores. Under his own name and as Ludrium, he has developed a distinctly melodic and technically adventurous style. He also composes and performs with John Carpenter and Daniel Davies, and his virtuosic keyboard voice fits naturally into Balaganist’s cinematic harmonies and odd-meter turns.",
+      links: [
+        { label: "Instagram", url: "https://www.instagram.com/ludrium/" },
+        { label: "Website", url: "https://www.ludrium.com/" }
+      ]
+    },
+
+    kmetz: {
+      name: "Kevin Kmetz",
+      role: "Tsugaru Shamisen",
+      image: "img/Kevin.jpg",
+      alt: "Kevin Kmetz playing shamisen",
+      bio: "Kevin Kmetz is a pioneering Tsugaru-shamisen player and bandleader who brings traditional Japanese technique into progressive rock and global fusion. He was the first foreign player to receive the Daijo Kazuo Award at the Kanagi national championship, and has led God of Shamisen while also performing with Estradasphere. His attack, speed and raw acoustic power give Balaganist an unmistakable extra edge.",
+      links: [
+        { label: "YouTube", url: "https://www.youtube.com/@kevinkmetz8374" },
+        { label: "IMDb", url: "https://www.imdb.com/name/nm3607189/" }
+      ]
+    },
+
+    carter: {
+      name: "Kevin S. Carter",
+      role: "Soprano Saxophone",
+      image: "img/carter.jpg",
+      alt: "Kevin Carter playing saxophone",
+      bio: "Kevin S. Carter is the soprano saxophonist heard on Balaganist’s 2016 EP No. 1. A key voice in the band’s original studio lineup, his playing gives the music a bright, vocal lead sound that moves naturally between jazz phrasing and progressive-rock contours.",
+      links: []
+    },
+
+    yunta: {
+      name: "Yunta Ikemiya",
+      role: "Percussion",
+      image: "img/yunta.jpg",
+      alt: "Yunta Ikemiya playing percussion",
+      bio: "Yunta Ikemiya is a Tokyo-based percussionist active across jazz, African, Caribbean, Latin and improvised music. His projects include Septeto Bunga Tropis, JAZZ KLAXON, Yalaqwe, Irma Osno and Diablo Marino, alongside collaborations and percussion-led sessions throughout Tokyo. With Balaganist, he expands the groove beyond the drum kit, adding colour, motion and a global rhythmic vocabulary.",
+      links: [
+        { label: "Facebook", url: "https://www.facebook.com/yunta.ikemiya/" },
+        { label: "Instagram", url: "https://www.instagram.com/yuntaikemiya/" },
+        { label: "Blog", url: "https://yuntaikemiya.blogspot.com/p/profile.html" }
+      ]
+    },
+
+    ruyman: {
+      name: "Ruymán Martín Quintanal",
+      role: "Keyboards · Production",
+      image: "img/ruyman.jpg",
+      alt: "Ruymán Martín Quintanal playing keyboards",
+      bio: "Ruymán Martín Quintanal is a pianist, keyboardist, music producer and sound engineer with formal studies in piano and musicology. His work crosses composition, production and genre-blending electronic and urban music, including rap-flamenco experiments. As a Balaganist guest, he brings a producer’s ear for texture and a keyboardist’s harmonic range.",
+      links: [
+        { label: "SoundCloud", url: "https://soundcloud.com/ruyman-martin-quintanal" },
+        { label: "LinkedIn", url: "https://www.linkedin.com/in/ruym%C3%A1n-mart%C3%ADn-quintanal-5743269b/" }
+      ]
+    }
+  };
+
   function setCurrentYear() {
     document.querySelectorAll("[data-current-year]").forEach(function (element) {
       element.textContent = String(new Date().getFullYear());
@@ -101,6 +210,121 @@
         card.style.setProperty("--rotate-y", "0deg");
       });
     });
+  }
+
+  function setupMemberBios() {
+    const modal = document.getElementById("member-modal");
+    const modalSurface = modal?.querySelector(".member-modal__surface");
+    const modalImage = document.getElementById("member-modal-image");
+    const modalName = document.getElementById("member-modal-name");
+    const modalRole = document.getElementById("member-modal-role");
+    const modalBio = document.getElementById("member-modal-bio");
+    const modalSocials = document.getElementById("member-modal-socials");
+    const closeButton = modal?.querySelector("[data-member-modal-close]");
+    const profileButtons = document.querySelectorAll("[data-member-profile]");
+
+    if (
+      !modal ||
+      !modalSurface ||
+      !modalImage ||
+      !modalName ||
+      !modalRole ||
+      !modalBio ||
+      !modalSocials ||
+      !closeButton ||
+      !profileButtons.length
+    ) {
+      return;
+    }
+
+    let lastTrigger = null;
+
+    function finishClose() {
+      document.body.classList.remove("bio-open");
+
+      if (lastTrigger) {
+        lastTrigger.focus({ preventScroll: true });
+        lastTrigger = null;
+      }
+    }
+
+    function closeModal() {
+      if (!modal.hasAttribute("open")) return;
+
+      if (typeof modal.close === "function") {
+        modal.close();
+      } else {
+        modal.removeAttribute("open");
+        finishClose();
+      }
+    }
+
+    function createSocialLinks(links) {
+      modalSocials.replaceChildren();
+
+      if (!links.length) {
+        const message = document.createElement("p");
+        message.className = "member-modal__no-links";
+        message.textContent = "No public profile links are currently available.";
+        modalSocials.appendChild(message);
+        return;
+      }
+
+      links.forEach(function (social) {
+        const link = document.createElement("a");
+        link.className = "member-modal__social-link";
+        link.href = social.url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = `${social.label} ↗`;
+        modalSocials.appendChild(link);
+      });
+    }
+
+    function openProfile(trigger) {
+      const profileId = trigger.dataset.memberProfile;
+      const profile = memberProfiles[profileId];
+
+      if (!profile) return;
+
+      modalImage.src = profile.image;
+      modalImage.alt = profile.alt;
+      modalName.textContent = profile.name;
+      modalRole.textContent = profile.role;
+      modalBio.textContent = profile.bio;
+      createSocialLinks(Array.isArray(profile.links) ? profile.links : []);
+
+      lastTrigger = trigger;
+      modalSurface.scrollTop = 0;
+      document.body.classList.add("bio-open");
+
+      if (!modal.hasAttribute("open")) {
+        if (typeof modal.showModal === "function") {
+          modal.showModal();
+        } else {
+          modal.setAttribute("open", "");
+        }
+      }
+    }
+
+    profileButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        openProfile(button);
+      });
+    });
+
+    closeButton.addEventListener("click", closeModal);
+
+    modal.addEventListener("click", function (event) {
+      if (event.target === modal) closeModal();
+    });
+
+    modal.addEventListener("cancel", function (event) {
+      event.preventDefault();
+      closeModal();
+    });
+
+    modal.addEventListener("close", finishClose);
   }
 
   function escapeHtml(value) {
@@ -361,6 +585,7 @@
     setupHeader();
     setupRevealAnimations();
     setupMemberTilt();
+    setupMemberBios();
     renderShows();
     setupContactForm();
     setupNewsletterForm();
