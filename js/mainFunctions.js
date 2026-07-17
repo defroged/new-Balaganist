@@ -1,339 +1,368 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const loadingOverlay = document.getElementById('loading-overlay');
-    const progressBar = document.getElementById('progress-bar');
+(function () {
+  "use strict";
 
-    // New: track individual loading with event listeners
-    function resourceLoad(resource, callback) {
-        if (resource.complete || resource.readyState === 'complete') {
-            callback();
-        } else {
-            resource.onload = callback;
-            resource.onerror = callback; // Consider failed loads to avoid freezing
-        }
-    }
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const resources = [...document.images, ...document.getElementsByTagName('script')];
-    const totalResources = resources.length;
-    let loadedResources = 0;
-
-    function onResourceLoad() {
-        loadedResources++;
-        const percent = (loadedResources / totalResources) * 100;
-        progressBar.style.width = `${percent}%`;
-
-        if (loadedResources === totalResources) {
-            setTimeout(() => loadingOverlay.style.display = 'none', 500); // Ensure overlay transition
-        }
-    }
-
-    resources.forEach(resource => resourceLoad(resource, onResourceLoad));
-
-    // Retry mechanism for failed resource loads
-    const abortTimeout = 3000; // 3 seconds max wait for problematic resources
-    setTimeout(() => {
-        // Making sure we unlock the screen even if some delaying occurred
-        if (loadingOverlay.style.display !== 'none') {
-            console.warn('Loading process was delayed due to network issues or resource errors.');
-            progressBar.style.width = '100%';
-            loadingOverlay.style.display = 'none';
-        }
-    }, abortTimeout);
-});
-
-// Toggle class menu
-$(function () {
-    $('.menu').on('click', function () {
-        $(this).toggleClass('active');
-        if ($(this).hasClass('active')) {
-            $('.ss-menu1').addClass('visible1');
-            $('.ss-menu2').addClass('visible2');
-            $('.ss-menu3').addClass('visible3');
-            $('.ss-menu4').addClass('visible4');
-            $('.ss-menu5').addClass('visible5');
-        } else {
-            $('.ss-menu1').removeClass('visible1');
-            $('.ss-menu2').removeClass('visible2');
-            $('.ss-menu3').removeClass('visible3');
-            $('.ss-menu4').removeClass('visible4');
-            $('.ss-menu5').removeClass('visible5');
-        }
-    })
-})
-$(function () {
-    $('.ss-menu').on('click', function () {
-      $('.menu').removeClass('active');
-      $('.ss-menu1').removeClass('visible1');
-      $('.ss-menu2').removeClass('visible2');
-      $('.ss-menu3').removeClass('visible3');
-      $('.ss-menu4').removeClass('visible4');
-      $('.ss-menu5').removeClass('visible5');
-    })
-})
-$(function () {
-    $(window).on('scroll', function () {
-        if ($('.menu').hasClass('active')) {
-          $('.menu').removeClass('active');
-          $('.ss-menu1').removeClass('visible1');
-          $('.ss-menu2').removeClass('visible2');
-          $('.ss-menu3').removeClass('visible3');
-          $('.ss-menu4').removeClass('visible4');
-          $('.ss-menu5').removeClass('visible5');
-        }
-    })
-})
-
-// Parallax effect and gsap
-$(function () {
-  if (!window.location.pathname.match("mentions")) {
-    $('.rellax').css('transform', 'translateX(-50%)');
-    var rellax = new Rellax('.rellax');
-  }
-})
-
-
-// new Form
-document.addEventListener('DOMContentLoaded', (event) => {
-    document.getElementById('contactForm').addEventListener('submit', function(e) {
-        e.preventDefault(); // Prevent the default form submission
-
-        // Get form values
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const message = document.getElementById('message').value;
-        const mathAnswer = document.getElementById('mathQuestion').value;
-
-        // Validate math question
-        if (parseInt(mathAnswer) !== 7) {
-            alert("Incorrect answer to the math question. Please try again.");
-            return; // Exit the function if the math answer is incorrect
-        }
-
-        // Prepare the email parameters
-        const templateParams = {
-            from_name: name,
-            to_name: 'Balaganist', // You can customize this as needed
-            message: message,
-            from_email: email // Include this if your template uses it
-        };
-
-        // Send email using EmailJS
-        emailjs.send('service_iygu334', 'template_7o3zivj', templateParams)
-            .then(function(response) {
-                console.log('SUCCESS!', response.status, response.text);
-                alert("Form submitted successfully!");
-
-                // Clear the form fields
-                document.getElementById('contactForm').reset();
-            }, function(error) {
-                console.log('FAILED...', error);
-                alert("Failed to send the email. Please try again.");
-            });
+  function setCurrentYear() {
+    document.querySelectorAll("[data-current-year]").forEach(function (element) {
+      element.textContent = String(new Date().getFullYear());
     });
-});
+  }
 
-// end new form
+  function setupHeader() {
+    const header = document.querySelector("[data-header]");
+    const toggle = document.querySelector(".nav-toggle");
+    const navigation = document.getElementById("site-navigation");
 
-// Manage vidéo
-$(function () {
-    $('video').on('click', function(event) {
+    if (!header) return;
+
+    let ticking = false;
+    function updateHeader() {
+      header.classList.toggle("is-scrolled", window.scrollY > 24);
+      ticking = false;
+    }
+
+    window.addEventListener("scroll", function () {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(updateHeader);
+    }, { passive: true });
+    updateHeader();
+
+    if (!toggle || !navigation) return;
+
+    function closeNavigation() {
+      toggle.setAttribute("aria-expanded", "false");
+      navigation.classList.remove("is-open");
+      document.body.classList.remove("nav-open");
+    }
+
+    toggle.addEventListener("click", function () {
+      const opening = toggle.getAttribute("aria-expanded") !== "true";
+      toggle.setAttribute("aria-expanded", String(opening));
+      navigation.classList.toggle("is-open", opening);
+      document.body.classList.toggle("nav-open", opening);
+    });
+
+    navigation.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", closeNavigation);
+    });
+
+    window.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") closeNavigation();
+    });
+
+    window.addEventListener("resize", function () {
+      if (window.innerWidth > 780) closeNavigation();
+    });
+  }
+
+  function setupRevealAnimations() {
+    const elements = document.querySelectorAll(".reveal");
+    if (!elements.length) return;
+
+    if (reduceMotion || !("IntersectionObserver" in window)) {
+      elements.forEach(function (element) {
+        element.classList.add("is-visible");
+      });
+      return;
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-visible");
+        observer.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: "0px 0px -6% 0px"
+    });
+
+    elements.forEach(function (element) {
+      observer.observe(element);
+    });
+  }
+
+  function setupMemberTilt() {
+    if (reduceMotion || !window.matchMedia("(pointer: fine)").matches) return;
+
+    document.querySelectorAll("[data-tilt]").forEach(function (card) {
+      card.addEventListener("pointermove", function (event) {
+        const bounds = card.getBoundingClientRect();
+        const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+        const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+        card.style.setProperty("--rotate-x", `${(-y * 5).toFixed(2)}deg`);
+        card.style.setProperty("--rotate-y", `${(x * 5).toFixed(2)}deg`);
+      });
+
+      card.addEventListener("pointerleave", function () {
+        card.style.setProperty("--rotate-x", "0deg");
+        card.style.setProperty("--rotate-y", "0deg");
+      });
+    });
+  }
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function toCalendarTimestamp(value) {
+    return new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+  }
+
+  function buildGoogleCalendarUrl(show) {
+    const location = show.address || [show.venue, show.city].filter(Boolean).join(", ");
+    const params = new URLSearchParams({
+      action: "TEMPLATE",
+      text: show.title,
+      dates: `${toCalendarTimestamp(show.start)}/${toCalendarTimestamp(show.end)}`,
+      details: show.note || "Balaganist live",
+      location: location,
+      ctz: show.timezone || "Asia/Tokyo"
+    });
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+  }
+
+  function escapeIcs(value) {
+    return String(value || "")
+      .replaceAll("\\", "\\\\")
+      .replaceAll(";", "\\;")
+      .replaceAll(",", "\\,")
+      .replace(/\r?\n/g, "\\n");
+  }
+
+  function downloadCalendarFile(show) {
+    const location = show.address || [show.venue, show.city].filter(Boolean).join(", ");
+    const uid = `${show.id || Date.now()}@balaganist.com`;
+    const lines = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Balaganist//Live Shows//EN",
+      "CALSCALE:GREGORIAN",
+      "BEGIN:VEVENT",
+      `UID:${escapeIcs(uid)}`,
+      `DTSTAMP:${toCalendarTimestamp(new Date())}`,
+      `DTSTART:${toCalendarTimestamp(show.start)}`,
+      `DTEND:${toCalendarTimestamp(show.end)}`,
+      `SUMMARY:${escapeIcs(show.title)}`,
+      `LOCATION:${escapeIcs(location)}`,
+      `DESCRIPTION:${escapeIcs(show.note || "Balaganist live")}`,
+      "END:VEVENT",
+      "END:VCALENDAR"
+    ];
+
+    const blob = new Blob([lines.join("\r\n")], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${show.id || "balaganist-show"}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function renderShows() {
+    const list = document.getElementById("event-list");
+    const emptyState = document.getElementById("no-shows");
+    if (!list) return;
+
+    const data = window.BALAGANIST_SITE_DATA || {};
+    const now = Date.now();
+    const shows = Array.isArray(data.upcomingShows)
+      ? data.upcomingShows
+        .filter(function (show) {
+          const finalTime = Date.parse(show.end || show.start);
+          return Number.isFinite(finalTime) && finalTime >= now;
+        })
+        .sort(function (a, b) { return Date.parse(a.start) - Date.parse(b.start); })
+      : [];
+
+    if (!shows.length) return;
+    if (emptyState) emptyState.classList.add("has-events");
+
+    shows.forEach(function (show) {
+      const startDate = new Date(show.start);
+      const timezone = show.timezone || "Asia/Tokyo";
+      const day = new Intl.DateTimeFormat("en", { day: "2-digit", timeZone: timezone }).format(startDate);
+      const month = new Intl.DateTimeFormat("en", { month: "short", timeZone: timezone }).format(startDate);
+      const time = new Intl.DateTimeFormat("en", { hour: "numeric", minute: "2-digit", timeZone: timezone }).format(startDate);
+      const venueLine = [show.venue, show.city].filter(Boolean).join(" · ");
+
+      const card = document.createElement("article");
+      card.className = "event-card";
+      card.innerHTML = `
+        <time class="event-card__date" datetime="${escapeHtml(show.start)}">
+          <strong>${escapeHtml(day)}</strong>
+          <span>${escapeHtml(month)}</span>
+        </time>
+        <div class="event-card__content">
+          <h3>${escapeHtml(show.title)}</h3>
+          <p class="event-card__meta">${escapeHtml(venueLine)}${venueLine ? " · " : ""}${escapeHtml(time)}</p>
+          ${show.note ? `<p class="event-card__meta">${escapeHtml(show.note)}</p>` : ""}
+          <div class="event-card__actions"></div>
+        </div>`;
+
+      const actions = card.querySelector(".event-card__actions");
+
+      if (show.ticketUrl) {
+        const ticketLink = document.createElement("a");
+        ticketLink.href = show.ticketUrl;
+        ticketLink.target = "_blank";
+        ticketLink.rel = "noopener noreferrer";
+        ticketLink.textContent = "Tickets ↗";
+        actions.appendChild(ticketLink);
+      }
+
+      if (show.mapUrl) {
+        const mapLink = document.createElement("a");
+        mapLink.href = show.mapUrl;
+        mapLink.target = "_blank";
+        mapLink.rel = "noopener noreferrer";
+        mapLink.textContent = "Map ↗";
+        actions.appendChild(mapLink);
+      }
+
+      const googleLink = document.createElement("a");
+      googleLink.href = buildGoogleCalendarUrl(show);
+      googleLink.target = "_blank";
+      googleLink.rel = "noopener noreferrer";
+      googleLink.textContent = "Google Calendar ↗";
+      actions.appendChild(googleLink);
+
+      const calendarButton = document.createElement("button");
+      calendarButton.type = "button";
+      calendarButton.textContent = "Download .ics";
+      calendarButton.addEventListener("click", function () { downloadCalendarFile(show); });
+      actions.appendChild(calendarButton);
+
+      list.appendChild(card);
+    });
+  }
+
+  function setFormStatus(element, message, isError) {
+    if (!element) return;
+    element.textContent = message;
+    element.classList.toggle("is-error", Boolean(isError));
+  }
+
+  function setupContactForm() {
+    const form = document.getElementById("contactForm");
+    const status = document.getElementById("contact-status");
+    if (!form) return;
+
+    const nameField = form.elements.namedItem("name");
+    const emailField = form.elements.namedItem("email");
+    const messageField = form.elements.namedItem("message");
+    const mathField = form.elements.namedItem("mathQuestion");
+
+    let emailJsInitialized = false;
+
+    function initializeEmailJs() {
+      if (!window.emailjs || emailJsInitialized) return Boolean(window.emailjs);
+      window.emailjs.init({ publicKey: "jGG5iqCZS9BqdhQuB" });
+      emailJsInitialized = true;
+      return true;
+    }
+
+    initializeEmailJs();
+
+    form.addEventListener("submit", async function (event) {
       event.preventDefault();
-      document.getElementById('tucoVideo').play();
+
+      if (mathField.value.trim() !== "7") {
+        setFormStatus(status, "That answer is not quite right. Please try again.", true);
+        mathField.focus();
+        return;
+      }
+
+      if (!initializeEmailJs()) {
+        setFormStatus(status, "The message service could not load. Please try again in a moment.", true);
+        return;
+      }
+
+      const submitButton = form.querySelector("button[type='submit']");
+      submitButton.disabled = true;
+      setFormStatus(status, "Sending…", false);
+
+      try {
+        await window.emailjs.send("service_iygu334", "template_7o3zivj", {
+          from_name: nameField.value.trim(),
+          from_email: emailField.value.trim(),
+          reply_to: emailField.value.trim(),
+          to_name: "Balaganist",
+          message: messageField.value.trim()
+        });
+        form.reset();
+        setFormStatus(status, "Message sent. Thank you!", false);
+      } catch (error) {
+        console.error("Contact form failed:", error);
+        setFormStatus(status, "The message did not send. Please try again.", true);
+      } finally {
+        submitButton.disabled = false;
+      }
     });
-})
-
-
-document.addEventListener('DOMContentLoaded', function () {
-    const emailNews = document.getElementById('emailNews');
-    const checkRobotNews = document.getElementById('checkRobotNews');
-    const helpMailNews = document.getElementById('helpMailNews');
-    const hideNews = document.getElementById('hideNews');
-    const retourNewsFormulaire = document.getElementById('retourNewsFormulaire');
-    const newsletterForm = document.querySelector('.newsletterForm');
-    const regexMail = /^([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$/;
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbywXC-iq1fWgZA2vcWVH9l2HRbQ8xX4CnG5oOld5JWcg7enEqmUItMm7aUm_4SCSnIF/exec';
-
-    emailNews.addEventListener('blur', function () {
-        validateEmail();
-    });
-
-    emailNews.addEventListener('input', function () {
-        validateEmail();
-    });
-
-    checkRobotNews.addEventListener('blur', function () {
-        validateRobotCheck();
-    });
-
-    checkRobotNews.addEventListener('input', function () {
-        validateRobotCheck();
-    });
-
-    newsletterForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        if (validateEmail() && validateRobotCheck()) {
-            submitForm();
-        } else {
-            alert('Please correct the errors before submitting the form.');
-        }
-    });
-
-    function validateEmail() {
-        const mailEntry = emailNews.value;
-        if (!mailEntry.match(regexMail)) {
-            helpMailNews.textContent = 'Incorrect email address';
-            helpMailNews.style.display = 'block';
-            hideNews.style.display = 'none';
-            return false;
-        } else {
-            helpMailNews.style.display = 'none';
-            hideNews.style.display = 'block';
-            return true;
-        }
-    }
-
-    function validateRobotCheck() {
-        if (checkRobotNews.value != 7) {
-            helpMailNews.textContent = 'Incorrect result';
-            helpMailNews.style.display = 'block';
-            return false;
-        } else {
-            helpMailNews.style.display = 'none';
-            return true;
-        }
-    }
-
-    function submitForm() {
-    const mail = emailNews.value;
-    const checkRobot = checkRobotNews.value;
-
-    fetch(scriptURL, {
-        method: 'POST',
-        redirect: 'follow', // Instructs fetch to follow redirects, which can help in some CORS scenarios
-        headers: {
-            'Content-Type': 'text/plain;charset=utf-8' // Change to avoid preflight check
-        },
-        body: JSON.stringify({ emailNews: mail, checkRobotNews: checkRobot })
-    })
-    .then(response => response.text())
-    .then(data => {
-        newsletterForm.style.display = 'none';
-        retourNewsFormulaire.style.cssText = "padding: 10px; margin-top: 60px; margin-bottom: 60px; margin-left: auto; margin-right: auto; color: white; font-size: 1rem; text-align: center;";
-        retourNewsFormulaire.innerHTML = 'Thank you for subscribing to our newsletter!';
-        emailNews.value = '';
-        checkRobotNews.value = '';
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to subscribe. Please try again later.');
-    });
-}
-
-});
-
-
-// Animations on scroll
-$(function () {
-    $(window).on('scroll', function () {
-        let sizePage = $(window).height();
-        let trigger = 100;
-        // Animation en Y
-        let element = document.getElementsByClassName('animatableY');
-        for (var unit of element) {
-          if (unit.getBoundingClientRect().top + trigger <= sizePage) {
-            unit.classList.add('showed');
-          }
-        }
-
-        // Animation en X
-        let elementh2 = document.getElementsByClassName('animatableX');
-        for (var unit of elementh2) {
-          if (unit.getBoundingClientRect().top + trigger <= sizePage) {
-            unit.classList.add('showed');
-          }
-        }
-
-        // Animation opacity
-        let elementOpacity = document.getElementsByClassName('animatableOpacity');
-        for (var unit of elementOpacity) {
-          if (unit.getBoundingClientRect().top + trigger <= sizePage) {
-            unit.classList.add('showed');
-          }
-        }
-    })
-})
-
-//Lazyload
-$(function () {
-  if (!window.location.pathname.match("mentions")) {
-    lazyload();
   }
-})
 
-// resize reload
-$(function () {
-  let initialWidth = $(window).innerWidth();
-  $(window).on('resize', function () {
-    let newWidth = $(window).innerWidth();
-    if (initialWidth != newWidth) {
-      document.location.reload(true);
-    }
-  })
-})
+  function setupNewsletterForm() {
+    const form = document.getElementById("newsletterForm");
+    const status = document.getElementById("newsletter-status");
+    if (!form) return;
 
-// Manage scroll up button
-$(function () {
-    let ecran = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-      $(window).on('scroll', function () {
-        let scrollNow = $(window).scrollTop();
-        $(window).on('scroll', function functionName() {
-          if (scrollNow > 600 && scrollNow > $(window).scrollTop()) {
-            if ($('#upArrow').is(":hidden")) {
-              $('#upArrow').show();
-            }
-          } else {
-            $('#upArrow').hide();
-          }
-        })
-        $('#upArrow').on('click', function () {
-            $(window).scrollTop(0);
-        })
-      })
-})
+    const emailField = form.elements.namedItem("emailNews");
+    const mathField = form.elements.namedItem("checkRobotNews");
 
-// Delete scroll tag on scroll down
-$(function () {
-    $(window).on('scroll', function () {
-        let topPage = $(window).scrollTop();
-        if (topPage >= 150) {
-          $('#scrollDown').hide();
-        } else {
-          $('#scrollDown').show();
-        }
-    })
-})
-// Manage tag scroll down
-$(function () {
-    $('#scrollDown').on('click', function() {
-      window.location.href = "#nextShow";
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbywXC-iq1fWgZA2vcWVH9l2HRbQ8xX4CnG5oOld5JWcg7enEqmUItMm7aUm_4SCSnIF/exec";
+
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      if (mathField.value.trim() !== "7") {
+        setFormStatus(status, "That answer is not quite right. Please try again.", true);
+        mathField.focus();
+        return;
+      }
+
+      const submitButton = form.querySelector("button[type='submit']");
+      submitButton.disabled = true;
+      setFormStatus(status, "Joining…", false);
+
+      try {
+        const response = await fetch(scriptUrl, {
+          method: "POST",
+          redirect: "follow",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            emailNews: emailField.value.trim(),
+            checkRobotNews: mathField.value.trim()
+          })
+        });
+
+        if (!response.ok) throw new Error(`Subscription failed with ${response.status}`);
+        form.reset();
+        setFormStatus(status, "You’re on the list. Thank you!", false);
+      } catch (error) {
+        console.error("Newsletter subscription failed:", error);
+        setFormStatus(status, "Could not subscribe right now. Please try again.", true);
+      } finally {
+        submitButton.disabled = false;
+      }
     });
-})
+  }
 
-// Locations
-$(function () {
-  $(".card").on('click', function () {
-    var url = $(this).data('url');
-    window.location.href = url;
+  document.addEventListener("DOMContentLoaded", function () {
+    setCurrentYear();
+    setupHeader();
+    setupRevealAnimations();
+    setupMemberTilt();
+    renderShows();
+    setupContactForm();
+    setupNewsletterForm();
   });
-});
-
-// Location socials
-$(function () {
-    $('.facebook').on('click', function(event) {
-      event.preventDefault();
-      window.location.href = "https://www.facebook.com/BalaganistJapan";
-    });
-    $('.instagram').on('click', function(event) {
-      event.preventDefault();
-      window.location.href = "https://www.instagram.com/balaganistjapan";
-    });
-})
+})();

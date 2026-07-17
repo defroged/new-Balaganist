@@ -1,57 +1,51 @@
-# :trollface: Free Rock Band Website Template :guitar:
+# Balaganist website
 
-<p align="center">
-  <img width="500" height="283" src="./img/screenshots/desktop.png" alt="Illustrations web page desktop">
-</p>
-<p align="center">
-  <img width="300" height="500" src="./img/screenshots/mobile.png" alt="Illustrations web page mobile">
-</p>
-<p align="center">
-  <img width="300" height="500" src="./img/screenshots//mobile-menu.png" alt="Illustrations web page mobile menu">
-</p>
+Static website for Balaganist, an instrumental progressive-fusion band from Tokyo.
 
+## Preview locally
 
-:point_right:[Show webpage here](https://gtcore902.github.io/free-rock-band-website-template/):metal:
+The 360° viewer should be tested through a local server rather than by double-clicking `index.html`.
 
-## :free: You can use this template for your Rock Band web site !
-
-### How to ?
-
-:one:
-```
-mkdir <your directory>
-git clone https://github.com/gtcore902/free-rock-band-website-template.git
+```bash
+python -m http.server 8000
 ```
 
-:two: Updates in 'index.html' :
-* 'alt' attributes for img tags
-* input your band name in place of < your band name here >
-* your band name in h1 / h2 tags
-* your clip and clip name in video tag
+Then open `http://localhost:8000`.
 
-:three: Update 'mainFunctions.js' file to input email address (line 55 / 56).
+## Add an upcoming show
 
-:four: To update yours social network accounts, modify lines 316 / 322 / 326 in the same file.
+Open `js/site-data.js` and add an object to `upcomingShows`:
 
-:five: Then you need to update these variables in 'sendFormContact.php' in your code editor to use form sections:
-* $texte = "your site name" (line 11)
-* $destinataire = "your email"
-* $objet = "your band name"
-* line 19 = "email from to send form" (you can choose any)
-* $conf = "yours smtp informations"
-
-:six: Do the same actions in 'sendFormSubscription.php' file.
-
-That's all:exclamation:
-Deploy this code on your server.
-
-### :sunglasses: Want to contribute :question:
-
-Fork this repository :stuck_out_tongue_winking_eye:
+```js
+{
+  id: "venue-name-2026-09-18",
+  title: "Balaganist Live",
+  start: "2026-09-18T19:00:00+09:00",
+  end: "2026-09-18T21:00:00+09:00",
+  timezone: "Asia/Tokyo",
+  venue: "Venue name",
+  city: "Tokyo",
+  address: "Full venue address",
+  mapUrl: "https://maps.google.com/...",
+  ticketUrl: "https://...",
+  note: "Doors 18:30"
+}
 ```
-mkdir <your directory>
-git clone https://github.com/gtcore902/free-rock-band-website-template.git
-git checkout -b newfeature
-git commit -am 'your feature'
-git push origin newfeature
-```
+
+Past dates are removed from the page automatically. Each future event gets ticket, map, Google Calendar and `.ics` calendar actions when the corresponding details are present.
+
+## Media
+
+The page uses the optimized files below:
+
+- `img/balaganist-panorama.webp`
+- `img/balaganist-logo.webp`
+- `img/ep-no-1.webp`
+- `img/my-light-poster.webp`
+- `videos/my-light-session.mp4`
+
+The old `videos/clip for Twitter 1.mp4` is no longer used and may be deleted after confirming the optimized video works.
+
+## Deployment
+
+No build step is required. Deploy the repository root as a static site.

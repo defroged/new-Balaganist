@@ -1,3 +1,4 @@
 User-agent: *
-User-agent: Googlebot-Image
-Disallow: /images/*.svg$
+Allow: /
+
+Sitemap: https://www.balaganist.com/sitemap.xml

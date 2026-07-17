@@ -1,247 +1,205 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const panorama = document.querySelector(".panorama");
-  const img1 = document.getElementById("img1");
-  const img2 = document.getElementById("img2");
+(function () {
+  "use strict";
 
-  if (!panorama) return;
-
-  const PANORAMA_URL = "img/balaganist_Panorama.jpg";
-  const PANNELLUM_VERSION = "2.5.7";
-  const PANNELLUM_CSS = `https://cdn.jsdelivr.net/npm/pannellum@${PANNELLUM_VERSION}/build/pannellum.css`;
-  const PANNELLUM_JS = `https://cdn.jsdelivr.net/npm/pannellum@${PANNELLUM_VERSION}/build/pannellum.js`;
+  const PANORAMA_URL = "img/balaganist-panorama.webp";
   const START_YAW = -60;
   const FULL_ROTATION = 360;
-  const MAX_HORIZONTAL_FOV = 90;
-  const TARGET_VERTICAL_FOV = 65;
-
-  let viewer = null;
-  let viewerReady = false;
-  let fallbackStarted = false;
-  let targetYaw = START_YAW;
-  let currentYaw = START_YAW;
-  let yawFrame = null;
-  let resizeFrame = null;
+  const TARGET_VERTICAL_FOV = 50;
+  const MAX_HORIZONTAL_FOV = 78;
+  const MIN_HORIZONTAL_FOV = 26;
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  function normalizeYaw(yaw) {
-    return ((yaw + 180) % 360 + 360) % 360 - 180;
-  }
+  document.addEventListener("DOMContentLoaded", function () {
+    const panorama = document.querySelector(".panorama");
+    const img1 = document.getElementById("img1");
+    const img2 = document.getElementById("img2");
+    if (!panorama || !img1 || !img2) return;
 
-  function getScrollProgress() {
-    const maxScroll = Math.max(
-      1,
-      document.documentElement.scrollHeight - window.innerHeight
-    );
+    let viewer = null;
+    let viewerLayer = null;
+    let viewerReady = false;
+    let viewerFailed = false;
+    let targetYaw = START_YAW;
+    let currentYaw = START_YAW;
+    let targetFallbackProgress = 0;
+    let currentFallbackProgress = 0;
+    let yawFrame = null;
+    let fallbackFrame = null;
+    let resizeFrame = null;
 
-    return Math.min(1, Math.max(0, window.scrollY / maxScroll));
-  }
+    function getScrollProgress() {
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      return Math.min(1, Math.max(0, window.scrollY / maxScroll));
+    }
 
-  function getHorizontalFov() {
-    const aspect = window.innerWidth / Math.max(1, window.innerHeight);
-    const verticalRadians = TARGET_VERTICAL_FOV * Math.PI / 180;
-    const horizontalRadians = 2 * Math.atan(
-      Math.tan(verticalRadians / 2) * aspect
-    );
-    const horizontalDegrees = horizontalRadians * 180 / Math.PI;
+    function normalizeYaw(yaw) {
+      return ((yaw + 180) % 360 + 360) % 360 - 180;
+    }
 
-    return Math.min(MAX_HORIZONTAL_FOV, Math.max(25, horizontalDegrees));
-  }
+    function getHorizontalFov() {
+      const aspect = window.innerWidth / Math.max(1, window.innerHeight);
+      const verticalRadians = TARGET_VERTICAL_FOV * Math.PI / 180;
+      const horizontalRadians = 2 * Math.atan(Math.tan(verticalRadians / 2) * aspect);
+      const horizontalDegrees = horizontalRadians * 180 / Math.PI;
+      return Math.min(MAX_HORIZONTAL_FOV, Math.max(MIN_HORIZONTAL_FOV, horizontalDegrees));
+    }
 
-  function handleScroll() {
-    targetYaw = START_YAW + FULL_ROTATION * getScrollProgress();
+    function positionFallback(progress) {
+      const imageWidth = img1.getBoundingClientRect().width || window.innerHeight * 2;
+      const left = -imageWidth * progress;
+      img1.style.transform = `translate3d(${left}px, 0, 0)`;
+      img2.style.transform = `translate3d(${left + imageWidth}px, 0, 0)`;
+    }
 
-    if (reduceMotion) currentYaw = targetYaw;
-    scheduleYawRender();
-  }
+    function renderFallback() {
+      fallbackFrame = null;
+      if (viewerReady) return;
 
-  function scheduleYawRender() {
-    if (!viewerReady || yawFrame !== null) return;
-    yawFrame = window.requestAnimationFrame(renderYaw);
-  }
+      const difference = targetFallbackProgress - currentFallbackProgress;
+      currentFallbackProgress = reduceMotion || Math.abs(difference) < 0.0001
+        ? targetFallbackProgress
+        : currentFallbackProgress + difference * 0.085;
+      positionFallback(currentFallbackProgress);
 
-  function renderYaw() {
-    yawFrame = null;
-
-    if (!viewerReady) return;
-
-    const difference = targetYaw - currentYaw;
-    currentYaw = reduceMotion || Math.abs(difference) < 0.01
-      ? targetYaw
-      : currentYaw + difference * 0.1;
-
-    viewer.setYaw(normalizeYaw(currentYaw), false);
-
-    if (Math.abs(targetYaw - currentYaw) >= 0.01) scheduleYawRender();
-  }
-
-  function handleResize() {
-    if (!viewerReady) return;
-
-    window.cancelAnimationFrame(resizeFrame);
-    resizeFrame = window.requestAnimationFrame(function () {
-      const horizontalFov = getHorizontalFov();
-      viewer.setHfovBounds([horizontalFov, horizontalFov]);
-      viewer.setHfov(horizontalFov, false);
-      viewer.resize();
-    });
-  }
-
-  function loadStylesheet(url) {
-    return new Promise(function (resolve, reject) {
-      const existing = document.querySelector(`link[href="${url}"]`);
-      if (existing) {
-        resolve();
-        return;
+      if (Math.abs(targetFallbackProgress - currentFallbackProgress) >= 0.0001) {
+        fallbackFrame = window.requestAnimationFrame(renderFallback);
       }
+    }
 
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = url;
-      link.onload = resolve;
-      link.onerror = reject;
-      document.head.appendChild(link);
-    });
-  }
+    function scheduleFallback() {
+      if (viewerReady || fallbackFrame !== null) return;
+      fallbackFrame = window.requestAnimationFrame(renderFallback);
+    }
 
-  function loadScript(url) {
-    return new Promise(function (resolve, reject) {
-      if (window.pannellum) {
-        resolve();
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.src = url;
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.appendChild(script);
-    });
-  }
-
-  function startFlatFallback() {
-    if (fallbackStarted || !img1 || !img2) return;
-    fallbackStarted = true;
-    viewerReady = false;
-
-    if (yawFrame !== null) {
-      window.cancelAnimationFrame(yawFrame);
+    function renderYaw() {
       yawFrame = null;
-    }
+      if (!viewerReady || !viewer) return;
 
-    window.removeEventListener("scroll", handleScroll);
-    window.removeEventListener("resize", handleResize);
-
-    if (viewer) {
-      viewer.destroy();
-      viewer = null;
-    }
-
-    panorama.replaceChildren(img1, img2);
-    panorama.removeAttribute("aria-hidden");
-    [
-      "position",
-      "inset",
-      "width",
-      "height",
-      "overflow",
-      "pointer-events",
-      "z-index"
-    ].forEach(function (property) {
-      panorama.style.removeProperty(property);
-    });
-
-    let fallbackTarget = -img1.offsetWidth / 3;
-    let fallbackCurrent = fallbackTarget;
-
-    function positionImages(newLeft) {
-      const imageWidth = img1.offsetWidth;
-      const wrappedLeft = ((newLeft % imageWidth) + imageWidth) % imageWidth;
-      const firstLeft = wrappedLeft - imageWidth;
-
-      img1.style.left = `${firstLeft}px`;
-      img2.style.left = `${firstLeft + imageWidth}px`;
-    }
-
-    function updateFallbackTarget() {
-      fallbackTarget = -img1.offsetWidth / 3 - img1.offsetWidth * getScrollProgress();
-    }
-
-    function animateFallback() {
-      fallbackCurrent += (fallbackTarget - fallbackCurrent) * 0.1;
-      positionImages(fallbackCurrent);
-      window.requestAnimationFrame(animateFallback);
-    }
-
-    updateFallbackTarget();
-    window.addEventListener("scroll", updateFallbackTarget, { passive: true });
-    window.addEventListener("resize", updateFallbackTarget);
-    window.requestAnimationFrame(animateFallback);
-  }
-
-  function initializeViewer() {
-    if (!window.pannellum) throw new Error("Pannellum did not load.");
-
-    const horizontalFov = getHorizontalFov();
-
-    panorama.replaceChildren();
-    panorama.setAttribute("aria-hidden", "true");
-    panorama.style.position = "fixed";
-    panorama.style.inset = "0";
-    panorama.style.width = "100%";
-    panorama.style.height = "100vh";
-    panorama.style.overflow = "hidden";
-    panorama.style.pointerEvents = "none";
-    panorama.style.zIndex = "-1";
-
-    viewer = window.pannellum.viewer(panorama, {
-      type: "equirectangular",
-      panorama: PANORAMA_URL,
-      autoLoad: true,
-      yaw: normalizeYaw(START_YAW),
-      pitch: 0,
-      minPitch: 0,
-      maxPitch: 0,
-      hfov: horizontalFov,
-      minHfov: horizontalFov,
-      maxHfov: horizontalFov,
-      draggable: false,
-      mouseZoom: false,
-      keyboardZoom: false,
-      disableKeyboardCtrl: true,
-      showControls: false,
-      showFullscreenCtrl: false,
-      orientationOnByDefault: false,
-      compass: false,
-      horizonPitch: 0,
-      horizonRoll: 0,
-      ignoreGPanoXMP: true,
-      backgroundColor: [0.102, 0.106, 0.114]
-    });
-
-    viewer.on("load", function () {
-      handleScroll();
-      currentYaw = targetYaw;
-      viewer.setPitch(0, false);
+      const difference = targetYaw - currentYaw;
+      currentYaw = Math.abs(difference) < 0.01
+        ? targetYaw
+        : currentYaw + difference * 0.085;
       viewer.setYaw(normalizeYaw(currentYaw), false);
-      viewerReady = true;
-      scheduleYawRender();
-    });
+      viewer.setPitch(0, false);
 
-    viewer.on("error", function (message) {
-      console.error("Panorama failed to load:", message);
-      startFlatFallback();
-    });
+      if (Math.abs(targetYaw - currentYaw) >= 0.01) {
+        yawFrame = window.requestAnimationFrame(renderYaw);
+      }
+    }
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    function scheduleYaw() {
+      if (!viewerReady || yawFrame !== null) return;
+      yawFrame = window.requestAnimationFrame(renderYaw);
+    }
+
+    function updateFromScroll() {
+      const progress = reduceMotion ? 0 : getScrollProgress();
+      targetFallbackProgress = progress;
+      targetYaw = START_YAW + FULL_ROTATION * progress;
+      scheduleFallback();
+      scheduleYaw();
+    }
+
+    function handleResize() {
+      window.cancelAnimationFrame(resizeFrame);
+      resizeFrame = window.requestAnimationFrame(function () {
+        positionFallback(currentFallbackProgress);
+        if (!viewerReady || !viewer) return;
+        const horizontalFov = getHorizontalFov();
+        viewer.setHfovBounds([horizontalFov, horizontalFov]);
+        viewer.setHfov(horizontalFov, false);
+        viewer.setPitch(0, false);
+        viewer.resize();
+      });
+    }
+
+    function keepFlatFallback(error) {
+      if (viewerFailed) return;
+      viewerFailed = true;
+      viewerReady = false;
+      panorama.classList.add("is-fallback");
+
+      if (viewer) {
+        try { viewer.destroy(); } catch (_) { /* Pannellum may already be torn down. */ }
+        viewer = null;
+      }
+      if (viewerLayer) {
+        viewerLayer.remove();
+        viewerLayer = null;
+      }
+
+      img1.hidden = false;
+      img2.hidden = false;
+      updateFromScroll();
+      if (error) console.warn("360° viewer unavailable; using the flat scrolling panorama.", error);
+    }
+
+    function initializeViewer() {
+      if (!window.pannellum) throw new Error("Pannellum did not load.");
+
+      const horizontalFov = getHorizontalFov();
+      viewerLayer = document.createElement("div");
+      viewerLayer.className = "panorama-viewer";
+      panorama.appendChild(viewerLayer);
+
+      viewer = window.pannellum.viewer(viewerLayer, {
+        type: "equirectangular",
+        panorama: PANORAMA_URL,
+        autoLoad: true,
+        yaw: normalizeYaw(START_YAW),
+        pitch: 0,
+        minPitch: 0,
+        maxPitch: 0,
+        hfov: horizontalFov,
+        minHfov: horizontalFov,
+        maxHfov: horizontalFov,
+        draggable: false,
+        mouseZoom: false,
+        keyboardZoom: false,
+        disableKeyboardCtrl: true,
+        showControls: false,
+        showFullscreenCtrl: false,
+        orientationOnByDefault: false,
+        compass: false,
+        horizonPitch: 0,
+        horizonRoll: 0,
+        ignoreGPanoXMP: true,
+        backgroundColor: [0.035, 0.035, 0.039]
+      });
+
+      viewer.on("load", function () {
+        if (viewerFailed) return;
+        currentYaw = targetYaw;
+        viewer.setPitch(0, false);
+        viewer.setYaw(normalizeYaw(currentYaw), false);
+        viewerReady = true;
+        panorama.classList.add("is-viewer-ready");
+        viewerLayer.classList.add("is-ready");
+
+        window.setTimeout(function () {
+          if (!viewerReady) return;
+          img1.hidden = true;
+          img2.hidden = true;
+        }, 500);
+        scheduleYaw();
+      });
+
+      viewer.on("error", function (message) {
+        keepFlatFallback(new Error(String(message)));
+      });
+    }
+
+    img1.addEventListener("load", handleResize, { once: true });
+    window.addEventListener("scroll", updateFromScroll, { passive: true });
     window.addEventListener("resize", handleResize);
-  }
+    updateFromScroll();
+    positionFallback(0);
 
-  Promise.all([
-    loadStylesheet(PANNELLUM_CSS),
-    loadScript(PANNELLUM_JS)
-  ]).then(initializeViewer).catch(function (error) {
-    console.error("360° viewer unavailable; using the flat panorama fallback.", error);
-    startFlatFallback();
+    try {
+      initializeViewer();
+    } catch (error) {
+      keepFlatFallback(error);
+    }
   });
-});
+})();
