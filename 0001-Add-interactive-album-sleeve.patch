@@ -1,0 +1,1072 @@
+From b18b418f1e0ba11c2e7fd12d3ea96a8207414d1f Mon Sep 17 00:00:00 2001
+From: OpenAI Codex <codex@openai.com>
+Date: Tue, 21 Jul 2026 17:12:55 +0700
+Subject: [PATCH] Add interactive album sleeve
+
+---
+ css/style.css       | 685 ++++++++++++++++++++++++++++++++++++++++++--
+ index.html          | 105 ++++++-
+ js/mainFunctions.js | 133 +++++++++
+ 3 files changed, 891 insertions(+), 32 deletions(-)
+
+diff --git a/css/style.css b/css/style.css
+index 5da902a..beffb1b 100644
+--- a/css/style.css
++++ b/css/style.css
+@@ -41,7 +41,8 @@ body {
+ }
+ 
+ body.nav-open,
+-body.bio-open {
++body.bio-open,
++body.album-open {
+   overflow: hidden;
+ }
+ 
+@@ -786,46 +787,127 @@ main,
+   position: relative;
+   z-index: 1;
+   display: grid;
+-  grid-template-columns: minmax(240px, 380px) minmax(0, 1fr);
+-  gap: clamp(32px, 5vw, 72px);
++  grid-template-columns: minmax(500px, 1.45fr) minmax(250px, 0.72fr);
++  gap: clamp(28px, 4vw, 56px);
+   align-items: center;
+   margin-top: clamp(42px, 7vw, 82px);
+ }
+ 
++.album-object {
++  position: relative;
++  width: 100%;
++  max-width: 650px;
++  aspect-ratio: 1.45 / 1;
++  margin-bottom: 28px;
++  isolation: isolate;
++  perspective: 1200px;
++}
++
+ .release-art {
++  --sleeve-rotate-x: 0deg;
++  --sleeve-rotate-y: 0deg;
++  --foil-x: 34%;
++  --foil-y: 24%;
+   position: relative;
+   display: block;
++  width: min(68%, 400px);
+   aspect-ratio: 1 / 1;
++  padding: 0;
++  overflow: visible;
++  color: inherit;
++  border: 0;
++  border-radius: 0;
++  background: transparent;
++  appearance: none;
++  cursor: pointer;
++}
++
++.album-sleeve {
++  position: absolute;
++  top: 50%;
++  left: 2%;
++  z-index: 3;
++  transform:
++    translateY(-50%)
++    perspective(1100px)
++    rotateX(var(--sleeve-rotate-x))
++    rotateY(var(--sleeve-rotate-y));
++  transform-style: preserve-3d;
++  transition: transform 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
++}
++
++.album-sleeve__cover {
++  position: absolute;
++  inset: 0;
++  display: block;
+   overflow: hidden;
+-  box-shadow: 18px 22px 0 rgba(225, 187, 45, 0.11), 0 28px 70px rgba(0, 0, 0, 0.38);
+-  transition: transform 300ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 300ms ease;
++  background: #d8aa16;
++  box-shadow:
++    18px 22px 0 rgba(225, 187, 45, 0.11),
++    0 28px 70px rgba(0, 0, 0, 0.45),
++    inset -10px 0 18px rgba(55, 38, 0, 0.2);
++  transform: translateZ(0);
++  transition: box-shadow 300ms ease, transform 300ms cubic-bezier(0.2, 0.7, 0.2, 1);
+ }
+ 
+-.release-art::before {
++.album-sleeve__cover::before {
+   content: "";
+   position: absolute;
+   inset: 10px;
+-  z-index: 1;
++  z-index: 3;
+   border: 1px solid rgba(9, 9, 10, 0.22);
+   pointer-events: none;
+ }
+ 
+-.release-art:hover {
+-  box-shadow: 10px 14px 0 rgba(225, 187, 45, 0.18), 0 28px 70px rgba(0, 0, 0, 0.45);
+-  transform: rotate(-1.2deg) translateY(-5px);
+-}
+-
+-.release-art img {
++.album-sleeve__cover img {
+   width: 100%;
+   height: 100%;
+   object-fit: cover;
+ }
+ 
+-.release-art > span {
++.album-sleeve__foil {
++  position: absolute;
++  inset: -8%;
++  z-index: 2;
++  display: block;
++  overflow: hidden;
++  background:
++    radial-gradient(circle at var(--foil-x) var(--foil-y), rgba(255, 249, 204, 0.58), rgba(242, 213, 106, 0.18) 12%, transparent 29%),
++    linear-gradient(118deg, transparent 22%, rgba(255, 249, 211, 0.06) 36%, rgba(255, 238, 151, 0.32) 48%, transparent 63%);
++  mix-blend-mode: screen;
++  opacity: 0.34;
++  pointer-events: none;
++  transform: translateZ(6px);
++  transition: opacity 250ms ease;
++}
++
++.album-sleeve__foil::after {
++  content: "";
++  position: absolute;
++  inset: -35% -55%;
++  background: linear-gradient(105deg, transparent 36%, rgba(255, 249, 211, 0.46) 48%, rgba(225, 187, 45, 0.18) 54%, transparent 67%);
++  transform: translateX(-72%) rotate(4deg);
++  animation: album-foil-sweep 6.8s cubic-bezier(0.55, 0.08, 0.35, 0.98) infinite;
++}
++
++.album-sleeve__edge {
++  position: absolute;
++  top: 0;
++  right: 0;
++  bottom: 0;
++  z-index: 3;
++  display: block;
++  width: 7px;
++  background: linear-gradient(90deg, rgba(71, 45, 0, 0.08), rgba(255, 245, 186, 0.36), rgba(65, 42, 0, 0.24));
++  pointer-events: none;
++}
++
++.album-sleeve__action {
+   position: absolute;
+   right: 14px;
+   bottom: 14px;
+-  z-index: 2;
++  z-index: 5;
++  display: block;
+   padding: 8px 11px;
+   color: var(--paper);
+   background: rgba(9, 9, 10, 0.9);
+@@ -835,6 +917,153 @@ main,
+   text-transform: uppercase;
+ }
+ 
++.album-sleeve:hover .album-sleeve__cover,
++.album-sleeve:focus-visible .album-sleeve__cover {
++  box-shadow:
++    10px 14px 0 rgba(225, 187, 45, 0.18),
++    0 34px 80px rgba(0, 0, 0, 0.55),
++    inset -10px 0 18px rgba(55, 38, 0, 0.18);
++  transform: translateZ(12px) scale(1.012);
++}
++
++.album-sleeve:hover .album-sleeve__foil,
++.album-sleeve:focus-visible .album-sleeve__foil {
++  opacity: 0.62;
++}
++
++.album-insert {
++  position: absolute;
++  top: 50%;
++  left: 4%;
++  z-index: 1;
++  width: min(64%, 380px);
++  aspect-ratio: 1 / 1;
++  padding: clamp(24px, 3.2vw, 40px);
++  overflow: hidden;
++  color: #201b10;
++  background:
++    linear-gradient(100deg, rgba(118, 87, 12, 0.07), transparent 15%),
++    repeating-linear-gradient(0deg, rgba(72, 55, 18, 0.025) 0 1px, transparent 1px 4px),
++    #e9e2d1;
++  border: 1px solid rgba(255, 255, 255, 0.46);
++  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.34);
++  transform: translate3d(0, -50%, 0) rotate(0.6deg);
++  transition:
++    transform 680ms cubic-bezier(0.16, 0.82, 0.2, 1),
++    box-shadow 500ms ease;
++}
++
++.album-insert::after {
++  content: "";
++  position: absolute;
++  inset: 10px;
++  border: 1px solid rgba(74, 57, 17, 0.17);
++  pointer-events: none;
++}
++
++.album-insert__kicker,
++.album-insert__catalog {
++  position: relative;
++  z-index: 1;
++  margin: 0;
++  color: #78601e;
++  font-family: var(--font-display);
++  font-size: clamp(0.48rem, 0.8vw, 0.62rem);
++  font-weight: 600;
++  letter-spacing: 0.12em;
++  text-transform: uppercase;
++}
++
++.album-insert__title {
++  position: relative;
++  z-index: 1;
++  margin: 5px 0 0;
++  color: #17130b;
++  font-family: var(--font-display);
++  font-size: clamp(1rem, 2vw, 1.45rem);
++  line-height: 1.2;
++}
++
++.album-insert__catalog {
++  position: absolute;
++  right: clamp(24px, 3.2vw, 40px);
++  bottom: clamp(22px, 3vw, 36px);
++}
++
++.album-object.is-insert-open .album-insert {
++  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
++  transform: translate3d(58%, -50%, 0) rotate(1.4deg);
++}
++
++@media (hover: hover) and (pointer: fine) {
++  .album-object:hover .album-insert,
++  .album-object:focus-within .album-insert {
++    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
++    transform: translate3d(58%, -50%, 0) rotate(1.4deg);
++  }
++}
++
++.album-insert-toggle {
++  position: absolute;
++  right: 0;
++  bottom: 34px;
++  z-index: 4;
++  display: inline-flex;
++  min-height: 40px;
++  align-items: center;
++  gap: 8px;
++  padding: 8px 12px;
++  color: var(--paper);
++  border: 1px solid rgba(225, 187, 45, 0.42);
++  border-radius: 999px;
++  background: rgba(9, 9, 10, 0.88);
++  font-family: var(--font-display);
++  font-size: 0.55rem;
++  font-weight: 600;
++  letter-spacing: 0.06em;
++  text-transform: uppercase;
++  cursor: pointer;
++  transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
++}
++
++.album-insert-toggle svg {
++  width: 15px;
++  height: 15px;
++  fill: none;
++  stroke: currentColor;
++  stroke-width: 1.8;
++  stroke-linecap: round;
++  stroke-linejoin: round;
++  transition: transform 380ms cubic-bezier(0.2, 0.7, 0.2, 1);
++}
++
++.album-insert-toggle:hover,
++.album-insert-toggle[aria-expanded="true"] {
++  color: var(--ink);
++  border-color: var(--gold);
++  background: var(--gold);
++}
++
++.album-insert-toggle[aria-expanded="true"] svg {
++  transform: rotate(180deg);
++}
++
++.album-object__hint {
++  position: absolute;
++  bottom: 0;
++  left: 2%;
++  margin: 0;
++  color: rgba(245, 240, 230, 0.56);
++  font-size: 0.66rem;
++  letter-spacing: 0.08em;
++  text-transform: uppercase;
++}
++
++@keyframes album-foil-sweep {
++  0%, 54% { transform: translateX(-72%) rotate(4deg); }
++  76%, 100% { transform: translateX(72%) rotate(4deg); }
++}
++
+ .release-copy h3,
+ .video-feature h3,
+ .no-shows h3,
+@@ -889,13 +1118,287 @@ main,
+   font-variant-numeric: tabular-nums;
+ }
+ 
++.track-list--insert {
++  position: relative;
++  z-index: 1;
++  margin: clamp(16px, 2.4vw, 26px) 0 0;
++}
++
++.track-list--insert li {
++  grid-template-columns: 24px minmax(0, 1fr) auto;
++  padding: clamp(6px, 1vw, 9px) 0;
++  color: #292216;
++  border-bottom-color: rgba(61, 47, 17, 0.18);
++  font-size: clamp(0.66rem, 1.2vw, 0.82rem);
++  line-height: 1.35;
++}
++
++.track-list--insert li::before,
++.track-list--insert time {
++  color: #806517;
++}
++
+ .bandcamp-player {
+   display: block;
+   width: 100%;
+   height: 120px;
++  margin-top: 26px;
+   border: 0;
+ }
+ 
++.album-panel-button {
++  width: 100%;
++  margin-top: 18px;
++}
++
++/* Immersive album player */
++.album-modal {
++  width: min(1160px, calc(100vw - 32px));
++  max-width: none;
++  max-height: calc(100svh - 32px);
++  padding: 0;
++  overflow: visible;
++  color: var(--paper);
++  border: 0;
++  background: transparent;
++  font-family: var(--font-body);
++}
++
++.album-modal::backdrop {
++  background:
++    radial-gradient(circle at 22% 30%, rgba(225, 187, 45, 0.12), transparent 30%),
++    rgba(2, 2, 3, 0.9);
++  -webkit-backdrop-filter: blur(14px) saturate(115%);
++  backdrop-filter: blur(14px) saturate(115%);
++}
++
++.album-modal[open] {
++  animation: album-modal-in 320ms cubic-bezier(0.16, 0.82, 0.2, 1) both;
++}
++
++.album-modal.is-fallback[open] {
++  position: fixed;
++  inset: 16px;
++  z-index: 1000;
++  display: block;
++  margin: auto;
++}
++
++.album-modal[open]::backdrop {
++  animation: member-backdrop-in 260ms ease both;
++}
++
++.album-modal__surface {
++  position: relative;
++  display: grid;
++  grid-template-columns: minmax(330px, 0.9fr) minmax(420px, 1.1fr);
++  max-height: calc(100svh - 32px);
++  overflow-y: auto;
++  overscroll-behavior: contain;
++  border: 1px solid rgba(225, 187, 45, 0.48);
++  background:
++    radial-gradient(circle at 92% 7%, rgba(166, 51, 45, 0.19), transparent 29%),
++    #0d0d0f;
++  box-shadow: 0 35px 130px rgba(0, 0, 0, 0.82);
++}
++
++.album-modal__close {
++  position: absolute;
++  top: 16px;
++  right: 16px;
++  z-index: 6;
++  display: grid;
++  width: 46px;
++  height: 46px;
++  padding: 0;
++  color: var(--paper);
++  border: 1px solid rgba(255, 255, 255, 0.3);
++  border-radius: 50%;
++  background: rgba(5, 5, 6, 0.86);
++  font-size: 1.6rem;
++  line-height: 1;
++  place-items: center;
++  cursor: pointer;
++  transition: color 180ms ease, border-color 180ms ease, transform 180ms ease;
++}
++
++.album-modal__close:hover {
++  color: var(--gold-light);
++  border-color: var(--gold);
++  transform: rotate(5deg);
++}
++
++.album-modal__visual {
++  position: sticky;
++  top: 0;
++  display: grid;
++  min-height: min(760px, calc(100svh - 34px));
++  align-content: center;
++  justify-items: center;
++  padding: clamp(40px, 6vw, 74px);
++  overflow: hidden;
++  background:
++    linear-gradient(145deg, rgba(225, 187, 45, 0.13), transparent 42%),
++    #080809;
++}
++
++.album-modal__visual::before {
++  content: "";
++  position: absolute;
++  inset: 0;
++  opacity: 0.2;
++  background-image: repeating-linear-gradient(118deg, transparent 0 14px, rgba(225, 187, 45, 0.13) 14px 15px);
++  pointer-events: none;
++}
++
++.album-modal__orbit {
++  position: absolute;
++  width: min(38vw, 470px);
++  aspect-ratio: 1;
++  border: 1px solid rgba(225, 187, 45, 0.25);
++  border-radius: 50%;
++  box-shadow:
++    0 0 0 26px rgba(225, 187, 45, 0.025),
++    0 0 0 58px rgba(225, 187, 45, 0.018);
++  animation: album-orbit-turn 24s linear infinite;
++}
++
++.album-modal__orbit::before,
++.album-modal__orbit::after {
++  content: "";
++  position: absolute;
++  border-radius: 50%;
++  background: var(--gold);
++  box-shadow: 0 0 18px rgba(225, 187, 45, 0.62);
++}
++
++.album-modal__orbit::before {
++  top: 9%;
++  left: 15%;
++  width: 8px;
++  height: 8px;
++}
++
++.album-modal__orbit::after {
++  right: 4%;
++  bottom: 27%;
++  width: 5px;
++  height: 5px;
++}
++
++.album-modal__artwork {
++  position: relative;
++  z-index: 2;
++  width: min(100%, 400px);
++  aspect-ratio: 1;
++  overflow: hidden;
++  box-shadow:
++    18px 20px 0 rgba(225, 187, 45, 0.13),
++    0 34px 90px rgba(0, 0, 0, 0.62);
++  transform: rotate(-1.3deg);
++}
++
++.album-modal__artwork img {
++  width: 100%;
++  height: 100%;
++  object-fit: cover;
++}
++
++.album-modal__artwork span {
++  position: absolute;
++  inset: 0;
++  background: linear-gradient(112deg, transparent 26%, rgba(255, 244, 180, 0.3) 45%, transparent 62%);
++  mix-blend-mode: screen;
++  animation: album-modal-shine 7s ease-in-out infinite;
++}
++
++.album-modal__visual > p {
++  position: relative;
++  z-index: 2;
++  margin: 32px 0 0;
++  color: rgba(245, 240, 230, 0.62);
++  font-family: var(--font-display);
++  font-size: 0.55rem;
++  letter-spacing: 0.12em;
++  text-transform: uppercase;
++}
++
++.album-modal__content {
++  padding: clamp(44px, 6vw, 76px);
++}
++
++.album-modal__content h2 {
++  margin-bottom: 18px;
++  font-family: var(--font-display);
++  font-size: clamp(2.1rem, 5vw, 4.5rem);
++  line-height: 1;
++}
++
++.album-modal__content > p:not(.release-kicker) {
++  max-width: 55ch;
++  margin-bottom: 0;
++  color: var(--muted);
++}
++
++.track-list--modal {
++  margin: 30px 0;
++}
++
++.album-modal__player {
++  display: block;
++  width: 100%;
++  height: 300px;
++  border: 0;
++}
++
++.album-modal__links {
++  display: grid;
++  grid-template-columns: repeat(2, minmax(0, 1fr));
++  margin-top: 24px;
++  border-top: 1px solid var(--line);
++  border-left: 1px solid var(--line);
++}
++
++.album-modal__links a {
++  display: flex;
++  min-height: 52px;
++  align-items: center;
++  justify-content: space-between;
++  padding: 12px 14px;
++  border-right: 1px solid var(--line);
++  border-bottom: 1px solid var(--line);
++  font-family: var(--font-display);
++  font-size: 0.56rem;
++  letter-spacing: 0.04em;
++  transition: color 180ms ease, background 180ms ease;
++}
++
++.album-modal__links a:hover {
++  color: var(--ink);
++  background: var(--gold);
++}
++
++@keyframes album-modal-in {
++  from {
++    opacity: 0;
++    transform: translateY(22px) scale(0.975);
++  }
++
++  to {
++    opacity: 1;
++    transform: translateY(0) scale(1);
++  }
++}
++
++@keyframes album-orbit-turn {
++  to { transform: rotate(360deg); }
++}
++
++@keyframes album-modal-shine {
++  0%, 52% { transform: translateX(-125%); }
++  78%, 100% { transform: translateX(125%); }
++}
++
+ .platforms {
+   position: relative;
+   z-index: 1;
+@@ -1606,8 +2109,8 @@ main,
+ 
+ @media (max-width: 1000px) {
+   .release-grid {
+-    grid-template-columns: minmax(220px, 310px) minmax(0, 1fr);
+-    gap: 36px;
++    grid-template-columns: minmax(380px, 1.2fr) minmax(210px, 0.8fr);
++    gap: 28px;
+   }
+ 
+   .platforms { grid-template-columns: repeat(2, 1fr); }
+@@ -1680,11 +2183,82 @@ main,
+     grid-template-columns: 1fr;
+   }
+ 
+-  .release-art {
+-    width: min(72vw, 300px);
+-    height: min(72vw, 300px);
+-    margin-inline: auto;
+-    justify-self: center;
++  .album-object {
++    width: min(100%, 480px);
++    max-width: none;
++    aspect-ratio: 1.5 / 1;
++    margin: 0 auto 44px;
++  }
++
++  .release-art,
++  .album-insert {
++    width: min(58%, 280px);
++  }
++
++  .album-sleeve {
++    left: 0;
++  }
++
++  .album-insert {
++    left: 1%;
++    padding: clamp(14px, 4vw, 24px);
++  }
++
++  .album-object.is-insert-open .album-insert,
++  .album-object:hover .album-insert,
++  .album-object:focus-within .album-insert {
++    transform: translate3d(70%, -50%, 0) rotate(1.2deg);
++  }
++
++  .album-insert__catalog {
++    right: clamp(14px, 4vw, 24px);
++    bottom: clamp(12px, 3vw, 20px);
++  }
++
++  .track-list--insert {
++    margin-top: clamp(9px, 2vw, 15px);
++  }
++
++  .track-list--insert li {
++    grid-template-columns: 19px minmax(0, 1fr) auto;
++    gap: 4px;
++    padding: clamp(3px, 0.8vw, 6px) 0;
++    font-size: clamp(0.55rem, 1.7vw, 0.72rem);
++  }
++
++  .album-insert-toggle {
++    right: 0;
++    bottom: -30px;
++  }
++
++  .album-object__hint {
++    display: none;
++  }
++
++  .album-modal__surface {
++    grid-template-columns: 1fr;
++  }
++
++  .album-modal__visual {
++    position: relative;
++    min-height: auto;
++    padding: 54px 58px 48px;
++  }
++
++  .album-modal__orbit {
++    width: min(62vw, 360px);
++  }
++
++  .album-modal__artwork {
++    width: min(62vw, 300px);
++  }
++
++  .album-modal__visual > p {
++    margin-top: 24px;
++  }
++
++  .album-modal__content {
++    padding: 42px clamp(24px, 7vw, 56px) 54px;
+   }
+   .video-feature { gap: 18px; }
+   .story-copy { padding-top: 0; }
+@@ -1702,6 +2276,63 @@ main,
+   .hero__actions { display: grid; }
+   .hero__actions .button { min-width: min(280px, 86vw); }
+ 
++  .album-object {
++    aspect-ratio: 1.42 / 1;
++  }
++
++  .album-insert__kicker {
++    display: none;
++  }
++
++  .album-insert__title {
++    margin-top: 0;
++    font-size: 0.78rem;
++  }
++
++  .album-insert__catalog {
++    display: none;
++  }
++
++  .album-modal {
++    width: calc(100vw - 16px);
++    max-height: calc(100svh - 16px);
++  }
++
++  .album-modal__surface {
++    max-height: calc(100svh - 16px);
++  }
++
++  .album-modal__close {
++    top: 10px;
++    right: 10px;
++    width: 42px;
++    height: 42px;
++  }
++
++  .album-modal__visual {
++    padding: 44px 34px 36px;
++  }
++
++  .album-modal__artwork {
++    width: min(66vw, 250px);
++  }
++
++  .album-modal__content {
++    padding: 34px 22px 42px;
++  }
++
++  .album-modal__content h2 {
++    font-size: clamp(2rem, 13vw, 3.3rem);
++  }
++
++  .album-modal__player {
++    height: 310px;
++  }
++
++  .album-modal__links {
++    grid-template-columns: 1fr;
++  }
++
+   .platforms { grid-template-columns: 1fr; }
+   .platforms a { min-height: 60px; }
+   .member-grid { grid-template-columns: 1fr; }
+@@ -1742,6 +2373,16 @@ main,
+     transform: none;
+   }
+ 
++  .album-sleeve__foil::after,
++  .album-modal__orbit,
++  .album-modal__artwork span {
++    animation: none !important;
++  }
++
++  .album-sleeve__foil {
++    opacity: 0.24;
++  }
++
+   .kinetic-title.is-kinetic-ready .kinetic-glyph {
+     color: inherit;
+     opacity: 1;
+diff --git a/index.html b/index.html
+index 09be79e..ec24f90 100644
+--- a/index.html
++++ b/index.html
+@@ -104,22 +104,58 @@
+           </div>
+ 
+           <div class="release-grid">
+-            <a class="release-art" href="https://balaganist.bandcamp.com/album/ep-no-1" target="_blank" rel="noopener noreferrer" aria-label="Open EP No. 1 on Bandcamp">
+-              <img src="img/ep-no-1.webp" width="900" height="900" alt="Yellow cover artwork for Balaganist EP No. 1">
+-              <span>Open release <b aria-hidden="true">↗</b></span>
+-            </a>
++            <div class="album-object" data-album-sleeve>
++              <div class="album-insert" id="album-track-insert">
++                <p class="album-insert__kicker">Inside the sleeve</p>
++                <p class="album-insert__title">EP No. 1</p>
++                <ol class="track-list track-list--insert">
++                  <li><span>Zen &amp; Hummus</span><time>08:11</time></li>
++                  <li><span>Slap Happy</span><time>05:18</time></li>
++                  <li><span>Nomuzo</span><time>05:48</time></li>
++                  <li><span>Five</span><time>05:00</time></li>
++                </ol>
++                <p class="album-insert__catalog">BAL · 001 / Tokyo</p>
++              </div>
++
++              <button
++                class="release-art album-sleeve"
++                type="button"
++                data-album-open
++                aria-haspopup="dialog"
++                aria-controls="album-modal"
++                aria-label="Open the immersive EP No. 1 listening panel"
++              >
++                <span class="album-sleeve__cover">
++                  <img src="img/ep-no-1.webp" width="900" height="900" alt="Yellow cover artwork for Balaganist EP No. 1">
++                  <span class="album-sleeve__foil" aria-hidden="true"></span>
++                  <span class="album-sleeve__edge" aria-hidden="true"></span>
++                </span>
++                <span class="album-sleeve__action">Enter album <b aria-hidden="true">↗</b></span>
++              </button>
++
++              <button
++                class="album-insert-toggle"
++                type="button"
++                data-album-insert-toggle
++                aria-controls="album-track-insert"
++                aria-expanded="false"
++              >
++                <span>Tracklist</span>
++                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
++                  <path d="m8 5 7 7-7 7"></path>
++                </svg>
++              </button>
++              <p class="album-object__hint" aria-hidden="true">Move to reveal · Click to listen</p>
++            </div>
+ 
+             <div class="release-copy">
+               <p class="release-kicker">Featured release · 2016</p>
+               <h3>EP No. 1</h3>
+               <p>Four original instrumental tracks shaped by progressive-rock structures, jazz instincts and sounds gathered from around the world.</p>
+-              <ol class="track-list">
+-                <li><span>Zen &amp; Hummus</span><time>08:11</time></li>
+-                <li><span>Slap Happy</span><time>05:18</time></li>
+-                <li><span>Nomuzo</span><time>05:48</time></li>
+-                <li><span>Five</span><time>05:00</time></li>
+-              </ol>
+               <iframe class="bandcamp-player" title="Listen to EP No. 1 by Balaganist on Bandcamp" src="https://bandcamp.com/EmbeddedPlayer/album=506663424/size=large/bgcol=111111/linkcol=e1bb2d/tracklist=false/artwork=small/transparent=true/" seamless></iframe>
++              <button class="button button--ghost album-panel-button" type="button" data-album-open aria-haspopup="dialog" aria-controls="album-modal">
++                Open immersive player <span aria-hidden="true">↗</span>
++              </button>
+             </div>
+           </div>
+ 
+@@ -390,6 +426,55 @@
+       </section>
+         </main>
+ 
++    <dialog
++      class="album-modal"
++      id="album-modal"
++      aria-labelledby="album-modal-title"
++      aria-describedby="album-modal-description"
++    >
++      <div class="album-modal__surface">
++        <button class="album-modal__close" type="button" data-album-modal-close aria-label="Close album player">×</button>
++
++        <div class="album-modal__visual">
++          <div class="album-modal__orbit" aria-hidden="true"></div>
++          <div class="album-modal__artwork">
++            <img src="img/ep-no-1.webp" width="900" height="900" alt="Yellow cover artwork for Balaganist EP No. 1">
++            <span aria-hidden="true"></span>
++          </div>
++          <p>Balaganist · Tokyo · 2016</p>
++        </div>
++
++        <div class="album-modal__content">
++          <p class="release-kicker">Featured release</p>
++          <h2 id="album-modal-title">EP No. 1</h2>
++          <p id="album-modal-description">Four original instrumental tracks shaped by progressive-rock structures, jazz instincts and sounds gathered from around the world.</p>
++
++          <ol class="track-list track-list--modal">
++            <li><span>Zen &amp; Hummus</span><time>08:11</time></li>
++            <li><span>Slap Happy</span><time>05:18</time></li>
++            <li><span>Nomuzo</span><time>05:48</time></li>
++            <li><span>Five</span><time>05:00</time></li>
++          </ol>
++
++          <iframe
++            class="album-modal__player"
++            title="Play EP No. 1 by Balaganist on Bandcamp"
++            data-src="https://bandcamp.com/EmbeddedPlayer/album=506663424/size=large/bgcol=0d0d0f/linkcol=e1bb2d/tracklist=true/artwork=none/transparent=true/"
++            src="about:blank"
++            allow="autoplay"
++            seamless
++          ></iframe>
++
++          <nav class="album-modal__links" aria-label="Listen on another service">
++            <a href="https://balaganist.bandcamp.com/album/ep-no-1" target="_blank" rel="noopener noreferrer">Bandcamp ↗</a>
++            <a href="https://open.spotify.com/artist/6Go8a0WKJ38QSuHkHClr1R" target="_blank" rel="noopener noreferrer">Spotify ↗</a>
++            <a href="https://music.apple.com/us/artist/balaganist/1107618913" target="_blank" rel="noopener noreferrer">Apple Music ↗</a>
++            <a href="https://www.youtube.com/user/balaganistjapan" target="_blank" rel="noopener noreferrer">YouTube ↗</a>
++          </nav>
++        </div>
++      </div>
++    </dialog>
++
+     <dialog
+       class="member-modal"
+       id="member-modal"
+diff --git a/js/mainFunctions.js b/js/mainFunctions.js
+index 656d19f..c177698 100644
+--- a/js/mainFunctions.js
++++ b/js/mainFunctions.js
+@@ -328,6 +328,138 @@
+     });
+   }
+ 
++  function setupAlbumExperience() {
++    const albumObject = document.querySelector("[data-album-sleeve]");
++    const albumCover = albumObject?.querySelector(".album-sleeve");
++    const insertToggle = albumObject?.querySelector("[data-album-insert-toggle]");
++    const modal = document.getElementById("album-modal");
++    const modalSurface = modal?.querySelector(".album-modal__surface");
++    const closeButton = modal?.querySelector("[data-album-modal-close]");
++    const player = modal?.querySelector(".album-modal__player");
++    const openButtons = document.querySelectorAll("[data-album-open]");
++
++    if (
++      !albumObject ||
++      !albumCover ||
++      !insertToggle ||
++      !modal ||
++      !modalSurface ||
++      !closeButton ||
++      !player ||
++      !openButtons.length
++    ) {
++      return;
++    }
++
++    let lastTrigger = null;
++    let tiltFrame = 0;
++
++    function setInsertOpen(open) {
++      albumObject.classList.toggle("is-insert-open", open);
++      insertToggle.setAttribute("aria-expanded", String(open));
++    }
++
++    function resetTilt() {
++      if (tiltFrame) {
++        window.cancelAnimationFrame(tiltFrame);
++        tiltFrame = 0;
++      }
++
++      albumCover.style.setProperty("--sleeve-rotate-x", "0deg");
++      albumCover.style.setProperty("--sleeve-rotate-y", "0deg");
++      albumCover.style.setProperty("--foil-x", "34%");
++      albumCover.style.setProperty("--foil-y", "24%");
++    }
++
++    function finishClose() {
++      document.body.classList.remove("album-open");
++
++      if (player.getAttribute("src") !== "about:blank") {
++        player.setAttribute("src", "about:blank");
++      }
++
++      if (lastTrigger) {
++        lastTrigger.focus({ preventScroll: true });
++        lastTrigger = null;
++      }
++    }
++
++    function closeModal() {
++      if (!modal.hasAttribute("open")) return;
++
++      if (typeof modal.close === "function") {
++        modal.close();
++      } else {
++        modal.removeAttribute("open");
++        modal.classList.remove("is-fallback");
++        finishClose();
++      }
++    }
++
++    function openModal(trigger) {
++      lastTrigger = trigger;
++      modalSurface.scrollTop = 0;
++      document.body.classList.add("album-open");
++
++      if (player.getAttribute("src") === "about:blank" && player.dataset.src) {
++        player.setAttribute("src", player.dataset.src);
++      }
++
++      if (!modal.hasAttribute("open")) {
++        if (typeof modal.showModal === "function") {
++          modal.showModal();
++        } else {
++          modal.classList.add("is-fallback");
++          modal.setAttribute("open", "");
++        }
++      }
++    }
++
++    insertToggle.addEventListener("click", function () {
++      setInsertOpen(insertToggle.getAttribute("aria-expanded") !== "true");
++    });
++
++    openButtons.forEach(function (button) {
++      button.addEventListener("click", function () {
++        openModal(button);
++      });
++    });
++
++    closeButton.addEventListener("click", closeModal);
++
++    modal.addEventListener("click", function (event) {
++      if (event.target === modal) closeModal();
++    });
++
++    modal.addEventListener("cancel", function (event) {
++      event.preventDefault();
++      closeModal();
++    });
++
++    modal.addEventListener("close", finishClose);
++
++    if (!reduceMotion && window.matchMedia("(pointer: fine)").matches) {
++      albumCover.addEventListener("pointermove", function (event) {
++        const bounds = albumCover.getBoundingClientRect();
++        const x = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
++        const y = Math.max(0, Math.min(1, (event.clientY - bounds.top) / bounds.height));
++
++        if (tiltFrame) window.cancelAnimationFrame(tiltFrame);
++
++        tiltFrame = window.requestAnimationFrame(function () {
++          albumCover.style.setProperty("--sleeve-rotate-x", `${((0.5 - y) * 6).toFixed(2)}deg`);
++          albumCover.style.setProperty("--sleeve-rotate-y", `${((x - 0.5) * 8).toFixed(2)}deg`);
++          albumCover.style.setProperty("--foil-x", `${(x * 100).toFixed(1)}%`);
++          albumCover.style.setProperty("--foil-y", `${(y * 100).toFixed(1)}%`);
++          tiltFrame = 0;
++        });
++      });
++
++      albumCover.addEventListener("pointerleave", resetTilt);
++      albumCover.addEventListener("blur", resetTilt);
++    }
++  }
++
+   function setupMemberBios() {
+     const modal = document.getElementById("member-modal");
+     const modalSurface = modal?.querySelector(".member-modal__surface");
+@@ -711,6 +843,7 @@
+     setupKineticTypography();
+     setupRevealAnimations();
+     setupMemberTilt();
++    setupAlbumExperience();
+     setupMemberBios();
+     renderShows();
+     setupContactForm();
+-- 
+2.51.1
+
