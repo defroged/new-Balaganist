@@ -58,7 +58,7 @@
       role: "Keyboard · Piano",
       image: "img/cody.jpg",
       alt: "Cody Carpenter playing keyboards",
-      bio: "Cody Carpenter is an American keyboardist and composer whose work spans progressive rock, jazz fusion, electronic music, film and video-game scores. Under his own name and as Ludrium, he has developed a distinctly melodic and technically adventurous style. He also composes and performs with John Carpenter and Daniel Davies, and his virtuosic keyboard voice fits naturally into Balaganist’s cinematic harmonies and odd-meter turns.",
+      bio: "Cody Carpenter is an American keyboardist and composer, and the son of legendary filmmaker and composer John Carpenter. His work spans progressive rock, jazz fusion, electronic music, film and video-game scores. Under his own name and as Ludrium, he has developed a distinctly melodic and technically adventurous style. He also composes and performs alongside his father and Daniel Davies, and his virtuosic keyboard voice fits naturally into Balaganist’s cinematic harmonies and odd-meter turns.",
       links: [
         { label: "Instagram", url: "https://www.instagram.com/ludrium/" },
         { label: "Website", url: "https://www.ludrium.com/" }
@@ -568,8 +568,17 @@
           })
         });
 
-        if (!response.ok) throw new Error(`Subscription failed with ${response.status}`);
-        form.reset();
+        if (!response.ok) {
+		  throw new Error(`Subscription failed with ${response.status}`);
+		}
+
+		const result = await response.json();
+
+		if (result.result !== "success") {
+		  throw new Error(result.message || "Subscription was rejected");
+		}
+
+		form.reset();
         setFormStatus(status, "You’re on the list. Thank you!", false);
       } catch (error) {
         console.error("Newsletter subscription failed:", error);
