@@ -166,6 +166,122 @@
     });
   }
 
+  function setupKineticTypography() {
+    const titles = document.querySelectorAll("[data-kinetic-title]");
+    if (!titles.length) return;
+
+    const preparedTitles = [];
+
+    titles.forEach(function (title) {
+      const originalText = title.textContent.replace(/\s+/g, " ").trim();
+      if (!originalText) return;
+
+      title.classList.add("kinetic-title");
+
+      if (reduceMotion) {
+        title.classList.add("is-kinetic-visible");
+        return;
+      }
+
+      const leadMeter = title.dataset.kineticLead === "11" ? 11 : 7;
+      const requestedDelay = Number.parseInt(title.dataset.kineticDelay || "80", 10);
+      const baseDelay = Number.isFinite(requestedDelay)
+        ? Math.max(0, requestedDelay)
+        : 80;
+      const words = originalText.split(" ");
+      const fragment = document.createDocumentFragment();
+      let letterIndex = 0;
+
+      words.forEach(function (wordText, wordIndex) {
+        const word = document.createElement("span");
+        word.className = "kinetic-word";
+        word.setAttribute("aria-hidden", "true");
+
+        Array.from(wordText).forEach(function (character) {
+          const beatNumber = letterIndex + 1;
+          const sevenPhase = letterIndex % 7;
+          const elevenPhase = letterIndex % 11;
+          const landsOnSeven = beatNumber % 7 === 0;
+          const landsOnEleven = beatNumber % 11 === 0;
+          const delay = baseDelay
+            + letterIndex * 24
+            + sevenPhase * 6
+            + elevenPhase * 4
+            + wordIndex * 42;
+
+          const letter = document.createElement("span");
+          const glyph = document.createElement("span");
+          letter.className = "kinetic-letter";
+          glyph.className = "kinetic-glyph";
+          glyph.textContent = character;
+
+          letter.style.setProperty("--kinetic-delay", `${delay}ms`);
+          letter.style.setProperty(
+            "--kinetic-hover-delay",
+            `${(sevenPhase * 18 + elevenPhase * 9) % 150}ms`
+          );
+
+          if (landsOnSeven) {
+            letter.classList.add("kinetic-letter--seven");
+          }
+
+          if (landsOnEleven) {
+            letter.classList.add("kinetic-letter--eleven");
+          }
+
+          if (landsOnSeven && landsOnEleven) {
+            letter.classList.add("kinetic-letter--both");
+          }
+
+          letter.appendChild(glyph);
+          word.appendChild(letter);
+          letterIndex += 1;
+        });
+
+        fragment.appendChild(word);
+
+        if (wordIndex < words.length - 1) {
+          fragment.appendChild(document.createTextNode(" "));
+        }
+      });
+
+      title.setAttribute("aria-label", originalText);
+      title.replaceChildren(fragment);
+      title.style.setProperty(
+        "--kinetic-meter-delay",
+        `${baseDelay + Math.min(letterIndex * 24, 620)}ms`
+      );
+      title.classList.add("is-kinetic-ready", `kinetic-title--lead-${leadMeter}`);
+      preparedTitles.push(title);
+    });
+
+    if (!preparedTitles.length) return;
+
+    function revealTitle(title) {
+      title.classList.add("is-kinetic-visible");
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      preparedTitles.forEach(revealTitle);
+      return;
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        revealTitle(entry.target);
+        observer.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0.3,
+      rootMargin: "0px 0px -8% 0px"
+    });
+
+    preparedTitles.forEach(function (title) {
+      observer.observe(title);
+    });
+  }
+
   function setupRevealAnimations() {
     const elements = document.querySelectorAll(".reveal");
     if (!elements.length) return;
@@ -592,6 +708,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     setCurrentYear();
     setupHeader();
+    setupKineticTypography();
     setupRevealAnimations();
     setupMemberTilt();
     setupMemberBios();
