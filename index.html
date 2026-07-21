@@ -104,22 +104,58 @@
           </div>
 
           <div class="release-grid">
-            <a class="release-art" href="https://balaganist.bandcamp.com/album/ep-no-1" target="_blank" rel="noopener noreferrer" aria-label="Open EP No. 1 on Bandcamp">
-              <img src="img/ep-no-1.webp" width="900" height="900" alt="Yellow cover artwork for Balaganist EP No. 1">
-              <span>Open release <b aria-hidden="true">↗</b></span>
-            </a>
+            <div class="album-object" data-album-sleeve>
+              <div class="album-insert" id="album-track-insert">
+                <p class="album-insert__kicker">Inside the sleeve</p>
+                <p class="album-insert__title">EP No. 1</p>
+                <ol class="track-list track-list--insert">
+                  <li><span>Zen &amp; Hummus</span><time>08:11</time></li>
+                  <li><span>Slap Happy</span><time>05:18</time></li>
+                  <li><span>Nomuzo</span><time>05:48</time></li>
+                  <li><span>Five</span><time>05:00</time></li>
+                </ol>
+                <p class="album-insert__catalog">BAL · 001 / Tokyo</p>
+              </div>
+
+              <button
+                class="release-art album-sleeve"
+                type="button"
+                data-album-open
+                aria-haspopup="dialog"
+                aria-controls="album-modal"
+                aria-label="Open the immersive EP No. 1 listening panel"
+              >
+                <span class="album-sleeve__cover">
+                  <img src="img/ep-no-1.webp" width="900" height="900" alt="Yellow cover artwork for Balaganist EP No. 1">
+                  <span class="album-sleeve__foil" aria-hidden="true"></span>
+                  <span class="album-sleeve__edge" aria-hidden="true"></span>
+                </span>
+                <span class="album-sleeve__action">Enter album <b aria-hidden="true">↗</b></span>
+              </button>
+
+              <button
+                class="album-insert-toggle"
+                type="button"
+                data-album-insert-toggle
+                aria-controls="album-track-insert"
+                aria-expanded="false"
+              >
+                <span>Tracklist</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="m8 5 7 7-7 7"></path>
+                </svg>
+              </button>
+              <p class="album-object__hint" aria-hidden="true">Move to reveal · Click to listen</p>
+            </div>
 
             <div class="release-copy">
               <p class="release-kicker">Featured release · 2016</p>
               <h3>EP No. 1</h3>
               <p>Four original instrumental tracks shaped by progressive-rock structures, jazz instincts and sounds gathered from around the world.</p>
-              <ol class="track-list">
-                <li><span>Zen &amp; Hummus</span><time>08:11</time></li>
-                <li><span>Slap Happy</span><time>05:18</time></li>
-                <li><span>Nomuzo</span><time>05:48</time></li>
-                <li><span>Five</span><time>05:00</time></li>
-              </ol>
               <iframe class="bandcamp-player" title="Listen to EP No. 1 by Balaganist on Bandcamp" src="https://bandcamp.com/EmbeddedPlayer/album=506663424/size=large/bgcol=111111/linkcol=e1bb2d/tracklist=false/artwork=small/transparent=true/" seamless></iframe>
+              <button class="button button--ghost album-panel-button" type="button" data-album-open aria-haspopup="dialog" aria-controls="album-modal">
+                Open immersive player <span aria-hidden="true">↗</span>
+              </button>
             </div>
           </div>
 
@@ -389,6 +425,55 @@
         </div>
       </section>
         </main>
+
+    <dialog
+      class="album-modal"
+      id="album-modal"
+      aria-labelledby="album-modal-title"
+      aria-describedby="album-modal-description"
+    >
+      <div class="album-modal__surface">
+        <button class="album-modal__close" type="button" data-album-modal-close aria-label="Close album player">×</button>
+
+        <div class="album-modal__visual">
+          <div class="album-modal__orbit" aria-hidden="true"></div>
+          <div class="album-modal__artwork">
+            <img src="img/ep-no-1.webp" width="900" height="900" alt="Yellow cover artwork for Balaganist EP No. 1">
+            <span aria-hidden="true"></span>
+          </div>
+          <p>Balaganist · Tokyo · 2016</p>
+        </div>
+
+        <div class="album-modal__content">
+          <p class="release-kicker">Featured release</p>
+          <h2 id="album-modal-title">EP No. 1</h2>
+          <p id="album-modal-description">Four original instrumental tracks shaped by progressive-rock structures, jazz instincts and sounds gathered from around the world.</p>
+
+          <ol class="track-list track-list--modal">
+            <li><span>Zen &amp; Hummus</span><time>08:11</time></li>
+            <li><span>Slap Happy</span><time>05:18</time></li>
+            <li><span>Nomuzo</span><time>05:48</time></li>
+            <li><span>Five</span><time>05:00</time></li>
+          </ol>
+
+          <iframe
+            class="album-modal__player"
+            title="Play EP No. 1 by Balaganist on Bandcamp"
+            data-src="https://bandcamp.com/EmbeddedPlayer/album=506663424/size=large/bgcol=0d0d0f/linkcol=e1bb2d/tracklist=true/artwork=none/transparent=true/"
+            src="about:blank"
+            allow="autoplay"
+            seamless
+          ></iframe>
+
+          <nav class="album-modal__links" aria-label="Listen on another service">
+            <a href="https://balaganist.bandcamp.com/album/ep-no-1" target="_blank" rel="noopener noreferrer">Bandcamp ↗</a>
+            <a href="https://open.spotify.com/artist/6Go8a0WKJ38QSuHkHClr1R" target="_blank" rel="noopener noreferrer">Spotify ↗</a>
+            <a href="https://music.apple.com/us/artist/balaganist/1107618913" target="_blank" rel="noopener noreferrer">Apple Music ↗</a>
+            <a href="https://www.youtube.com/user/balaganistjapan" target="_blank" rel="noopener noreferrer">YouTube ↗</a>
+          </nav>
+        </div>
+      </div>
+    </dialog>
 
     <dialog
       class="member-modal"

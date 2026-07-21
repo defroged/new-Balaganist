@@ -328,6 +328,138 @@
     });
   }
 
+  function setupAlbumExperience() {
+    const albumObject = document.querySelector("[data-album-sleeve]");
+    const albumCover = albumObject?.querySelector(".album-sleeve");
+    const insertToggle = albumObject?.querySelector("[data-album-insert-toggle]");
+    const modal = document.getElementById("album-modal");
+    const modalSurface = modal?.querySelector(".album-modal__surface");
+    const closeButton = modal?.querySelector("[data-album-modal-close]");
+    const player = modal?.querySelector(".album-modal__player");
+    const openButtons = document.querySelectorAll("[data-album-open]");
+
+    if (
+      !albumObject ||
+      !albumCover ||
+      !insertToggle ||
+      !modal ||
+      !modalSurface ||
+      !closeButton ||
+      !player ||
+      !openButtons.length
+    ) {
+      return;
+    }
+
+    let lastTrigger = null;
+    let tiltFrame = 0;
+
+    function setInsertOpen(open) {
+      albumObject.classList.toggle("is-insert-open", open);
+      insertToggle.setAttribute("aria-expanded", String(open));
+    }
+
+    function resetTilt() {
+      if (tiltFrame) {
+        window.cancelAnimationFrame(tiltFrame);
+        tiltFrame = 0;
+      }
+
+      albumCover.style.setProperty("--sleeve-rotate-x", "0deg");
+      albumCover.style.setProperty("--sleeve-rotate-y", "0deg");
+      albumCover.style.setProperty("--foil-x", "34%");
+      albumCover.style.setProperty("--foil-y", "24%");
+    }
+
+    function finishClose() {
+      document.body.classList.remove("album-open");
+
+      if (player.getAttribute("src") !== "about:blank") {
+        player.setAttribute("src", "about:blank");
+      }
+
+      if (lastTrigger) {
+        lastTrigger.focus({ preventScroll: true });
+        lastTrigger = null;
+      }
+    }
+
+    function closeModal() {
+      if (!modal.hasAttribute("open")) return;
+
+      if (typeof modal.close === "function") {
+        modal.close();
+      } else {
+        modal.removeAttribute("open");
+        modal.classList.remove("is-fallback");
+        finishClose();
+      }
+    }
+
+    function openModal(trigger) {
+      lastTrigger = trigger;
+      modalSurface.scrollTop = 0;
+      document.body.classList.add("album-open");
+
+      if (player.getAttribute("src") === "about:blank" && player.dataset.src) {
+        player.setAttribute("src", player.dataset.src);
+      }
+
+      if (!modal.hasAttribute("open")) {
+        if (typeof modal.showModal === "function") {
+          modal.showModal();
+        } else {
+          modal.classList.add("is-fallback");
+          modal.setAttribute("open", "");
+        }
+      }
+    }
+
+    insertToggle.addEventListener("click", function () {
+      setInsertOpen(insertToggle.getAttribute("aria-expanded") !== "true");
+    });
+
+    openButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        openModal(button);
+      });
+    });
+
+    closeButton.addEventListener("click", closeModal);
+
+    modal.addEventListener("click", function (event) {
+      if (event.target === modal) closeModal();
+    });
+
+    modal.addEventListener("cancel", function (event) {
+      event.preventDefault();
+      closeModal();
+    });
+
+    modal.addEventListener("close", finishClose);
+
+    if (!reduceMotion && window.matchMedia("(pointer: fine)").matches) {
+      albumCover.addEventListener("pointermove", function (event) {
+        const bounds = albumCover.getBoundingClientRect();
+        const x = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
+        const y = Math.max(0, Math.min(1, (event.clientY - bounds.top) / bounds.height));
+
+        if (tiltFrame) window.cancelAnimationFrame(tiltFrame);
+
+        tiltFrame = window.requestAnimationFrame(function () {
+          albumCover.style.setProperty("--sleeve-rotate-x", `${((0.5 - y) * 6).toFixed(2)}deg`);
+          albumCover.style.setProperty("--sleeve-rotate-y", `${((x - 0.5) * 8).toFixed(2)}deg`);
+          albumCover.style.setProperty("--foil-x", `${(x * 100).toFixed(1)}%`);
+          albumCover.style.setProperty("--foil-y", `${(y * 100).toFixed(1)}%`);
+          tiltFrame = 0;
+        });
+      });
+
+      albumCover.addEventListener("pointerleave", resetTilt);
+      albumCover.addEventListener("blur", resetTilt);
+    }
+  }
+
   function setupMemberBios() {
     const modal = document.getElementById("member-modal");
     const modalSurface = modal?.querySelector(".member-modal__surface");
@@ -711,6 +843,7 @@
     setupKineticTypography();
     setupRevealAnimations();
     setupMemberTilt();
+    setupAlbumExperience();
     setupMemberBios();
     renderShows();
     setupContactForm();
