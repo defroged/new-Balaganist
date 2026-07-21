@@ -329,35 +329,61 @@
   }
 
   function setupAlbumExperience() {
-    const albumObject = document.querySelector("[data-album-sleeve]");
-    const albumCover = albumObject?.querySelector(".album-sleeve");
-    const insertToggle = albumObject?.querySelector("[data-album-insert-toggle]");
-    const modal = document.getElementById("album-modal");
-    const modalSurface = modal?.querySelector(".album-modal__surface");
-    const closeButton = modal?.querySelector("[data-album-modal-close]");
-    const player = modal?.querySelector(".album-modal__player");
-    const openButtons = document.querySelectorAll("[data-album-open]");
+  const albumObject = document.querySelector("[data-album-sleeve]");
+  const albumCover = albumObject?.querySelector(".album-sleeve");
+  const albumInsert = albumObject?.querySelector(".album-insert");
+  const insertToggle = albumObject?.querySelector("[data-album-insert-toggle]");
+  const modal = document.getElementById("album-modal");
+  const modalSurface = modal?.querySelector(".album-modal__surface");
+  const closeButton = modal?.querySelector("[data-album-modal-close]");
+  const player = modal?.querySelector(".album-modal__player");
+  const openButtons = document.querySelectorAll("[data-album-open]");
 
-    if (
-      !albumObject ||
-      !albumCover ||
-      !insertToggle ||
-      !modal ||
-      !modalSurface ||
-      !closeButton ||
-      !player ||
-      !openButtons.length
-    ) {
-      return;
+  if (
+    !albumObject ||
+    !albumCover ||
+    !albumInsert ||
+    !insertToggle ||
+    !modal ||
+    !modalSurface ||
+    !closeButton ||
+    !player ||
+    !openButtons.length
+  ) {
+    return;
+  }
+
+  let lastTrigger = null;
+  let tiltFrame = 0;
+  let insertCloseTimer = null;
+
+  function finishInsertClose() {
+    albumObject.classList.remove("is-insert-closing");
+    insertCloseTimer = null;
+  }
+
+  function setInsertOpen(open) {
+    const wasOpen = albumObject.classList.contains("is-insert-open");
+
+    if (insertCloseTimer !== null) {
+      window.clearTimeout(insertCloseTimer);
+      insertCloseTimer = null;
     }
 
-    let lastTrigger = null;
-    let tiltFrame = 0;
+    albumObject.classList.remove("is-insert-closing");
 
-    function setInsertOpen(open) {
-      albumObject.classList.toggle("is-insert-open", open);
-      insertToggle.setAttribute("aria-expanded", String(open));
+    if (open) {
+      albumObject.classList.add("is-insert-open");
+    } else if (wasOpen) {
+      albumObject.classList.remove("is-insert-open");
+      albumObject.classList.add("is-insert-closing");
+      insertCloseTimer = window.setTimeout(finishInsertClose, 680);
+    } else {
+      albumObject.classList.remove("is-insert-open");
     }
+
+    insertToggle.setAttribute("aria-expanded", String(open));
+  }
 
     function resetTilt() {
       if (tiltFrame) {
