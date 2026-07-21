@@ -995,14 +995,6 @@ main,
   transform: translate3d(58%, -50%, 0) rotate(1.4deg);
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .album-object:hover .album-insert,
-  .album-object:focus-within .album-insert {
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
-    transform: translate3d(58%, -50%, 0) rotate(1.4deg);
-  }
-}
-
 .album-insert-toggle {
   position: absolute;
   right: 0;
@@ -1340,14 +1332,11 @@ main,
   color: var(--muted);
 }
 
-.track-list--modal {
-  margin: 30px 0;
-}
-
 .album-modal__player {
   display: block;
   width: 100%;
   height: 300px;
+  margin-top: 30px;
   border: 0;
 }
 
@@ -2204,11 +2193,9 @@ main,
     padding: clamp(14px, 4vw, 24px);
   }
 
-  .album-object.is-insert-open .album-insert,
-  .album-object:hover .album-insert,
-  .album-object:focus-within .album-insert {
-    transform: translate3d(70%, -50%, 0) rotate(1.2deg);
-  }
+  .album-object.is-insert-open .album-insert {
+  transform: translate3d(70%, -50%, 0) rotate(1.2deg);
+}
 
   .album-insert__catalog {
     right: clamp(14px, 4vw, 24px);
