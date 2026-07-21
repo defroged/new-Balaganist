@@ -3,6 +3,198 @@
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // Add credits and stories by replacing the blank strings in this object.
+  const albumDetailProfiles = {
+    album: {
+      eyebrow: "Album details",
+      title: "EP No. 1",
+      meta: "Balaganist · 2016 · Four tracks",
+      sections: [
+        {
+          title: "Album credits",
+          fields: {
+            "Produced by": "",
+            "Executive producer": "",
+            "Recorded by": "",
+            "Recorded at": "",
+            "Mixed by": "",
+            "Mastered by": "",
+            "Artwork / design": "",
+            "Photography": "",
+            "Label / catalog": "",
+            "Release date": ""
+          }
+        },
+        {
+          title: "Inside the album",
+          layout: "wide",
+          fields: {
+            "Background / story": "",
+            "Recording notes": "",
+            "Fun facts": "",
+            "Special thanks": ""
+          }
+        }
+      ]
+    },
+
+    "zen-hummus": {
+      eyebrow: "Track 01",
+      title: "Zen & Hummus",
+      meta: "08:11 · EP No. 1",
+      sections: [
+        {
+          title: "Track credits",
+          fields: {
+            "Composed by": "",
+            "Arranged by": "",
+            "Guitar": "",
+            "Bass": "",
+            "Drums": "",
+            "Violin": "",
+            "Saxophone": "",
+            "Keyboards": "",
+            "Percussion": "",
+            "Additional musicians": "",
+            "Produced by": "",
+            "Recorded by": "",
+            "Recorded at": "",
+            "Mixed by": "",
+            "Mastered by": ""
+          }
+        },
+        {
+          title: "Behind the track",
+          layout: "wide",
+          fields: {
+            "Background / story": "",
+            "Recording notes": "",
+            "Fun facts": "",
+            "Time signature(s)": "",
+            "Gear / sounds": ""
+          }
+        }
+      ]
+    },
+
+    "slap-happy": {
+      eyebrow: "Track 02",
+      title: "Slap Happy",
+      meta: "05:18 · EP No. 1",
+      sections: [
+        {
+          title: "Track credits",
+          fields: {
+            "Composed by": "",
+            "Arranged by": "",
+            "Guitar": "",
+            "Bass": "",
+            "Drums": "",
+            "Violin": "",
+            "Saxophone": "",
+            "Keyboards": "",
+            "Percussion": "",
+            "Additional musicians": "",
+            "Produced by": "",
+            "Recorded by": "",
+            "Recorded at": "",
+            "Mixed by": "",
+            "Mastered by": ""
+          }
+        },
+        {
+          title: "Behind the track",
+          layout: "wide",
+          fields: {
+            "Background / story": "",
+            "Recording notes": "",
+            "Fun facts": "",
+            "Time signature(s)": "",
+            "Gear / sounds": ""
+          }
+        }
+      ]
+    },
+
+    nomuzo: {
+      eyebrow: "Track 03",
+      title: "Nomuzo",
+      meta: "05:48 · EP No. 1",
+      sections: [
+        {
+          title: "Track credits",
+          fields: {
+            "Composed by": "",
+            "Arranged by": "",
+            "Guitar": "",
+            "Bass": "",
+            "Drums": "",
+            "Violin": "",
+            "Saxophone": "",
+            "Keyboards": "",
+            "Percussion": "",
+            "Additional musicians": "",
+            "Produced by": "",
+            "Recorded by": "",
+            "Recorded at": "",
+            "Mixed by": "",
+            "Mastered by": ""
+          }
+        },
+        {
+          title: "Behind the track",
+          layout: "wide",
+          fields: {
+            "Background / story": "",
+            "Recording notes": "",
+            "Fun facts": "",
+            "Time signature(s)": "",
+            "Gear / sounds": ""
+          }
+        }
+      ]
+    },
+
+    five: {
+      eyebrow: "Track 04",
+      title: "Five",
+      meta: "05:00 · EP No. 1",
+      sections: [
+        {
+          title: "Track credits",
+          fields: {
+            "Composed by": "",
+            "Arranged by": "",
+            "Guitar": "",
+            "Bass": "",
+            "Drums": "",
+            "Violin": "",
+            "Saxophone": "",
+            "Keyboards": "",
+            "Percussion": "",
+            "Additional musicians": "",
+            "Produced by": "",
+            "Recorded by": "",
+            "Recorded at": "",
+            "Mixed by": "",
+            "Mastered by": ""
+          }
+        },
+        {
+          title: "Behind the track",
+          layout: "wide",
+          fields: {
+            "Background / story": "",
+            "Recording notes": "",
+            "Fun facts": "",
+            "Time signature(s)": "",
+            "Gear / sounds": ""
+          }
+        }
+      ]
+    }
+  };
+
   const memberProfiles = {
     ron: {
       name: "Ron J. Ward",
@@ -329,61 +521,56 @@
   }
 
   function setupAlbumExperience() {
-  const albumObject = document.querySelector("[data-album-sleeve]");
-  const albumCover = albumObject?.querySelector(".album-sleeve");
-  const albumInsert = albumObject?.querySelector(".album-insert");
-  const insertToggle = albumObject?.querySelector("[data-album-insert-toggle]");
-  const modal = document.getElementById("album-modal");
-  const modalSurface = modal?.querySelector(".album-modal__surface");
-  const closeButton = modal?.querySelector("[data-album-modal-close]");
-  const player = modal?.querySelector(".album-modal__player");
-  const openButtons = document.querySelectorAll("[data-album-open]");
+    const albumObject = document.querySelector("[data-album-sleeve]");
+    const albumCover = albumObject?.querySelector(".album-sleeve");
+    const albumInsert = albumObject?.querySelector(".album-insert");
+    const insertToggle = albumObject?.querySelector("[data-album-insert-toggle]");
+    const trackButtons = albumObject?.querySelectorAll("[data-bandcamp-track]");
+    const player = document.getElementById("bandcamp-player");
+    const playerStatus = document.getElementById("bandcamp-selection-status");
 
-  if (
-    !albumObject ||
-    !albumCover ||
-    !albumInsert ||
-    !insertToggle ||
-    !modal ||
-    !modalSurface ||
-    !closeButton ||
-    !player ||
-    !openButtons.length
-  ) {
-    return;
-  }
+    if (
+      !albumObject ||
+      !albumCover ||
+      !albumInsert ||
+      !insertToggle ||
+      !trackButtons?.length ||
+      !player
+    ) {
+      return;
+    }
 
-  let lastTrigger = null;
-  let tiltFrame = 0;
-  let insertCloseTimer = null;
+    let tiltFrame = 0;
+    let insertCloseTimer = null;
+    let pendingTrack = null;
 
-  function finishInsertClose() {
-    albumObject.classList.remove("is-insert-closing");
-    insertCloseTimer = null;
-  }
-
-  function setInsertOpen(open) {
-    const wasOpen = albumObject.classList.contains("is-insert-open");
-
-    if (insertCloseTimer !== null) {
-      window.clearTimeout(insertCloseTimer);
+    function finishInsertClose() {
+      albumObject.classList.remove("is-insert-closing");
       insertCloseTimer = null;
     }
 
-    albumObject.classList.remove("is-insert-closing");
+    function setInsertOpen(open) {
+      const wasOpen = albumObject.classList.contains("is-insert-open");
 
-    if (open) {
-      albumObject.classList.add("is-insert-open");
-    } else if (wasOpen) {
-      albumObject.classList.remove("is-insert-open");
-      albumObject.classList.add("is-insert-closing");
-      insertCloseTimer = window.setTimeout(finishInsertClose, 680);
-    } else {
-      albumObject.classList.remove("is-insert-open");
+      if (insertCloseTimer !== null) {
+        window.clearTimeout(insertCloseTimer);
+        insertCloseTimer = null;
+      }
+
+      albumObject.classList.remove("is-insert-closing");
+
+      if (open) {
+        albumObject.classList.add("is-insert-open");
+      } else if (wasOpen) {
+        albumObject.classList.remove("is-insert-open");
+        albumObject.classList.add("is-insert-closing");
+        insertCloseTimer = window.setTimeout(finishInsertClose, 680);
+      } else {
+        albumObject.classList.remove("is-insert-open");
+      }
+
+      insertToggle.setAttribute("aria-expanded", String(open));
     }
-
-    insertToggle.setAttribute("aria-expanded", String(open));
-  }
 
     function resetTilt() {
       if (tiltFrame) {
@@ -397,47 +584,27 @@
       albumCover.style.setProperty("--foil-y", "24%");
     }
 
-    function finishClose() {
-      document.body.classList.remove("album-open");
+    function playBandcampTrack(button) {
+      const trackId = button.dataset.bandcampTrack;
+      const trackTitle = button.dataset.trackTitle || "Selected track";
+      const baseUrl = player.dataset.bandcampBase;
 
-      if (player.getAttribute("src") !== "about:blank") {
-        player.setAttribute("src", "about:blank");
-      }
+      if (!trackId || !baseUrl) return;
 
-      if (lastTrigger) {
-        lastTrigger.focus({ preventScroll: true });
-        lastTrigger = null;
-      }
-    }
+      trackButtons.forEach(function (trackButton) {
+        trackButton.classList.remove("is-loading", "is-selected");
+      });
 
-    function closeModal() {
-      if (!modal.hasAttribute("open")) return;
+      button.classList.add("is-loading", "is-selected");
+      pendingTrack = { button: button, title: trackTitle };
+      player.title = `Play ${trackTitle} by Balaganist on Bandcamp`;
+      player.setAttribute(
+        "src",
+        `${baseUrl}track=${encodeURIComponent(trackId)}/autoplay=true/transparent=true/`
+      );
 
-      if (typeof modal.close === "function") {
-        modal.close();
-      } else {
-        modal.removeAttribute("open");
-        modal.classList.remove("is-fallback");
-        finishClose();
-      }
-    }
-
-    function openModal(trigger) {
-      lastTrigger = trigger;
-      modalSurface.scrollTop = 0;
-      document.body.classList.add("album-open");
-
-      if (player.getAttribute("src") === "about:blank" && player.dataset.src) {
-        player.setAttribute("src", player.dataset.src);
-      }
-
-      if (!modal.hasAttribute("open")) {
-        if (typeof modal.showModal === "function") {
-          modal.showModal();
-        } else {
-          modal.classList.add("is-fallback");
-          modal.setAttribute("open", "");
-        }
+      if (playerStatus) {
+        playerStatus.textContent = `Starting “${trackTitle}” in Bandcamp…`;
       }
     }
 
@@ -445,24 +612,23 @@
       setInsertOpen(insertToggle.getAttribute("aria-expanded") !== "true");
     });
 
-    openButtons.forEach(function (button) {
+    trackButtons.forEach(function (button) {
       button.addEventListener("click", function () {
-        openModal(button);
+        playBandcampTrack(button);
       });
     });
 
-    closeButton.addEventListener("click", closeModal);
+    player.addEventListener("load", function () {
+      if (!pendingTrack) return;
 
-    modal.addEventListener("click", function (event) {
-      if (event.target === modal) closeModal();
+      pendingTrack.button.classList.remove("is-loading");
+
+      if (playerStatus) {
+        playerStatus.textContent = `“${pendingTrack.title}” is loaded in the Bandcamp player.`;
+      }
+
+      pendingTrack = null;
     });
-
-    modal.addEventListener("cancel", function (event) {
-      event.preventDefault();
-      closeModal();
-    });
-
-    modal.addEventListener("close", finishClose);
 
     if (!reduceMotion && window.matchMedia("(pointer: fine)").matches) {
       albumCover.addEventListener("pointermove", function (event) {
@@ -484,6 +650,144 @@
       albumCover.addEventListener("pointerleave", resetTilt);
       albumCover.addEventListener("blur", resetTilt);
     }
+  }
+
+  function setupAlbumDetails() {
+    const modal = document.getElementById("album-details-modal");
+    const modalCard = modal?.querySelector(".album-details-card");
+    const closeButton = modal?.querySelector("[data-album-details-close]");
+    const eyebrow = document.getElementById("album-details-eyebrow");
+    const title = document.getElementById("album-details-title");
+    const meta = document.getElementById("album-details-meta");
+    const sectionsContainer = document.getElementById("album-details-sections");
+    const detailButtons = document.querySelectorAll("[data-album-detail]");
+
+    if (
+      !modal ||
+      !modalCard ||
+      !closeButton ||
+      !eyebrow ||
+      !title ||
+      !meta ||
+      !sectionsContainer ||
+      !detailButtons.length
+    ) {
+      return;
+    }
+
+    let lastTrigger = null;
+
+    function renderSections(sections) {
+      const fragment = document.createDocumentFragment();
+
+      sections.forEach(function (sectionData) {
+        const section = document.createElement("section");
+        const heading = document.createElement("h3");
+        const fields = document.createElement("dl");
+
+        section.className = "album-details-card__section";
+        if (sectionData.layout === "wide") {
+          section.classList.add("album-details-card__section--wide");
+        }
+
+        heading.textContent = sectionData.title;
+        fields.className = "album-details-card__fields";
+
+        Object.entries(sectionData.fields).forEach(function ([label, value]) {
+          const row = document.createElement("div");
+          const term = document.createElement("dt");
+          const description = document.createElement("dd");
+          const text = String(value || "").trim();
+
+          row.className = "album-details-card__field";
+          term.textContent = label;
+          description.textContent = text || "—";
+
+          if (!text) {
+            description.classList.add("is-empty");
+            description.setAttribute("aria-label", "Not added yet");
+          }
+
+          row.append(term, description);
+          fields.appendChild(row);
+        });
+
+        section.append(heading, fields);
+        fragment.appendChild(section);
+      });
+
+      sectionsContainer.replaceChildren(fragment);
+    }
+
+    function finishClose() {
+      document.body.classList.remove("album-details-open");
+      modal.classList.remove("is-fallback");
+
+      if (lastTrigger) {
+        lastTrigger.focus({ preventScroll: true });
+        lastTrigger = null;
+      }
+    }
+
+    function closeModal() {
+      if (!modal.hasAttribute("open")) return;
+
+      if (typeof modal.close === "function") {
+        modal.close();
+      } else {
+        modal.removeAttribute("open");
+        finishClose();
+      }
+    }
+
+    function openDetails(trigger) {
+      const profile = albumDetailProfiles[trigger.dataset.albumDetail];
+      if (!profile) return;
+
+      eyebrow.textContent = profile.eyebrow;
+      title.textContent = profile.title;
+      meta.textContent = profile.meta;
+      renderSections(profile.sections);
+
+      lastTrigger = trigger;
+      modalCard.scrollTop = 0;
+      document.body.classList.add("album-details-open");
+
+      if (!modal.hasAttribute("open")) {
+        if (typeof modal.showModal === "function") {
+          modal.showModal();
+        } else {
+          modal.classList.add("is-fallback");
+          modal.setAttribute("open", "");
+          closeButton.focus();
+        }
+      }
+    }
+
+    detailButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        openDetails(button);
+      });
+    });
+
+    closeButton.addEventListener("click", closeModal);
+
+    modal.addEventListener("click", function (event) {
+      if (event.target === modal) closeModal();
+    });
+
+    modal.addEventListener("cancel", function (event) {
+      event.preventDefault();
+      closeModal();
+    });
+
+    modal.addEventListener("close", finishClose);
+
+    window.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && modal.classList.contains("is-fallback")) {
+        closeModal();
+      }
+    });
   }
 
   function setupMemberBios() {
@@ -870,6 +1174,7 @@
     setupRevealAnimations();
     setupMemberTilt();
     setupAlbumExperience();
+    setupAlbumDetails();
     setupMemberBios();
     renderShows();
     setupContactForm();
