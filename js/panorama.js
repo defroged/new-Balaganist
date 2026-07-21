@@ -6,8 +6,8 @@
   const FULL_ROTATION = 360;
 
   /* A slightly wider view so the panorama feels less zoomed in. */
-  const TARGET_VERTICAL_FOV = 55;
-  const MAX_HORIZONTAL_FOV = 92;
+  const TARGET_VERTICAL_FOV = 62;
+  const MAX_HORIZONTAL_FOV = 100;
   const MIN_HORIZONTAL_FOV = 28;
 
   /* Time-based smoothing works consistently at different frame rates. */
