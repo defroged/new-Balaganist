@@ -4,9 +4,17 @@
   const PANORAMA_URL = "img/balaganist-panorama.webp";
   const START_YAW = -60;
   const FULL_ROTATION = 360;
-  const TARGET_VERTICAL_FOV = 50;
-  const MAX_HORIZONTAL_FOV = 78;
-  const MIN_HORIZONTAL_FOV = 26;
+
+  /* A slightly wider view so the panorama feels less zoomed in. */
+  const TARGET_VERTICAL_FOV = 55;
+  const MAX_HORIZONTAL_FOV = 92;
+  const MIN_HORIZONTAL_FOV = 28;
+
+  /* Time-based smoothing works consistently at different frame rates. */
+  const PAN_FOLLOW_SPEED = 6.5;
+  const MAX_FRAME_DELTA = 50;
+  const YAW_EPSILON = 0.01;
+  const FALLBACK_EPSILON = 0.0001;
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -27,6 +35,9 @@
     let yawFrame = null;
     let fallbackFrame = null;
     let resizeFrame = null;
+    let lastYawFrameTime = null;
+    let lastFallbackFrameTime = null;
+    let fallbackImageWidth = 0;
 
     function getScrollProgress() {
       const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
@@ -45,51 +56,121 @@
       return Math.min(MAX_HORIZONTAL_FOV, Math.max(MIN_HORIZONTAL_FOV, horizontalDegrees));
     }
 
-    function positionFallback(progress) {
-      const imageWidth = img1.getBoundingClientRect().width || window.innerHeight * 2;
-      const left = -imageWidth * progress;
-      img1.style.transform = `translate3d(${left}px, 0, 0)`;
-      img2.style.transform = `translate3d(${left + imageWidth}px, 0, 0)`;
+    function measureFallbackImage() {
+      const measuredWidth = img1.getBoundingClientRect().width;
+      fallbackImageWidth = measuredWidth > 0
+        ? measuredWidth
+        : Math.max(1, window.innerHeight * 2);
     }
 
-    function renderFallback() {
-      fallbackFrame = null;
-      if (viewerReady) return;
+    function positionFallback(progress) {
+      if (!fallbackImageWidth) {
+        measureFallbackImage();
+      }
 
-      const difference = targetFallbackProgress - currentFallbackProgress;
-      currentFallbackProgress = reduceMotion || Math.abs(difference) < 0.0001
-        ? targetFallbackProgress
-        : currentFallbackProgress + difference * 0.085;
+      const left = -fallbackImageWidth * progress;
+      img1.style.transform = `translate3d(${left}px, 0, 0)`;
+      img2.style.transform = `translate3d(${left + fallbackImageWidth}px, 0, 0)`;
+    }
+
+    function getFrameBlend(timestamp, previousTimestamp) {
+      const elapsed = previousTimestamp === null
+        ? 1000 / 60
+        : Math.min(
+            MAX_FRAME_DELTA,
+            Math.max(1, timestamp - previousTimestamp)
+          );
+
+      return 1 - Math.exp(-PAN_FOLLOW_SPEED * elapsed / 1000);
+    }
+
+    function renderFallback(timestamp) {
+      fallbackFrame = null;
+
+      if (viewerReady) {
+        lastFallbackFrameTime = null;
+        return;
+      }
+
+      const difference =
+        targetFallbackProgress - currentFallbackProgress;
+
+      if (reduceMotion || Math.abs(difference) <= FALLBACK_EPSILON) {
+        currentFallbackProgress = targetFallbackProgress;
+      } else {
+        currentFallbackProgress += difference * getFrameBlend(
+          timestamp,
+          lastFallbackFrameTime
+        );
+      }
+
+      lastFallbackFrameTime = timestamp;
+
+      if (
+        Math.abs(targetFallbackProgress - currentFallbackProgress) <=
+        FALLBACK_EPSILON
+      ) {
+        currentFallbackProgress = targetFallbackProgress;
+      }
+
       positionFallback(currentFallbackProgress);
 
-      if (Math.abs(targetFallbackProgress - currentFallbackProgress) >= 0.0001) {
+      if (currentFallbackProgress !== targetFallbackProgress) {
         fallbackFrame = window.requestAnimationFrame(renderFallback);
+      } else {
+        lastFallbackFrameTime = null;
       }
     }
 
     function scheduleFallback() {
       if (viewerReady || fallbackFrame !== null) return;
+
+      lastFallbackFrameTime = null;
       fallbackFrame = window.requestAnimationFrame(renderFallback);
     }
 
-    function renderYaw() {
+    function renderYaw(timestamp) {
       yawFrame = null;
-      if (!viewerReady || !viewer) return;
+
+      if (!viewerReady || !viewer) {
+        lastYawFrameTime = null;
+        return;
+      }
 
       const difference = targetYaw - currentYaw;
-      currentYaw = Math.abs(difference) < 0.01
-        ? targetYaw
-        : currentYaw + difference * 0.085;
-      viewer.setYaw(normalizeYaw(currentYaw), false);
-      viewer.setPitch(0, false);
 
-      if (Math.abs(targetYaw - currentYaw) >= 0.01) {
+      if (reduceMotion || Math.abs(difference) <= YAW_EPSILON) {
+        currentYaw = targetYaw;
+      } else {
+        currentYaw += difference * getFrameBlend(
+          timestamp,
+          lastYawFrameTime
+        );
+      }
+
+      lastYawFrameTime = timestamp;
+
+      if (Math.abs(targetYaw - currentYaw) <= YAW_EPSILON) {
+        currentYaw = targetYaw;
+      }
+
+      /*
+       * Pitch is already locked to zero in the viewer configuration,
+       * so only yaw needs to be updated while scrolling.
+       */
+      viewer.setYaw(normalizeYaw(currentYaw), false);
+
+      if (currentYaw !== targetYaw) {
         yawFrame = window.requestAnimationFrame(renderYaw);
+      } else {
+        lastYawFrameTime = null;
       }
     }
 
     function scheduleYaw() {
       if (!viewerReady || yawFrame !== null) return;
+
+      lastYawFrameTime = null;
       yawFrame = window.requestAnimationFrame(renderYaw);
     }
 
@@ -102,15 +183,24 @@
     }
 
     function handleResize() {
-      window.cancelAnimationFrame(resizeFrame);
+      if (resizeFrame !== null) {
+        window.cancelAnimationFrame(resizeFrame);
+      }
+
       resizeFrame = window.requestAnimationFrame(function () {
+        resizeFrame = null;
+
+        measureFallbackImage();
         positionFallback(currentFallbackProgress);
+
         if (!viewerReady || !viewer) return;
+
         const horizontalFov = getHorizontalFov();
+
+        viewer.resize();
         viewer.setHfovBounds([horizontalFov, horizontalFov]);
         viewer.setHfov(horizontalFov, false);
         viewer.setPitch(0, false);
-        viewer.resize();
       });
     }
 
