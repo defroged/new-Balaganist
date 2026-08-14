@@ -46,6 +46,19 @@ The page uses the optimized files below:
 
 The old `videos/clip for Twitter 1.mp4` is no longer used and may be deleted after confirming the optimized video works.
 
+## Interactive experience
+
+- The Listen section wraps the Bandcamp embed in a custom signal player. Track buttons load the corresponding Bandcamp track, keep the sleeve and player controls in sync, and clearly explain when the embedded Bandcamp play control is still needed.
+- The album insert is removed from the keyboard tab order while closed and restored when opened.
+- The page includes a moving rhythm tape, desktop chapter-progress rail, pointer-following ambient light and panel spotlights.
+- Motion-heavy effects respect `prefers-reduced-motion`.
+
+When adding or changing a track, update both controls with the same `data-bandcamp-track`, `data-track-title`, `data-track-number` and `data-track-duration` values.
+
+## Browser support
+
+The source includes JavaScript and layout fallbacks for iPad Safari on iOS 10.3.3. Keep the scripts ES2017-compatible and retain the non-`clamp()`, non-`min()` and non-`aspect-ratio` CSS fallbacks when editing the visual system.
+
 ## Deployment
 
 No build step is required. Deploy the repository root as a static site.
