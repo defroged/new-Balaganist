@@ -53,6 +53,7 @@
     <div class="panorama-shade" aria-hidden="true"></div>
     <div class="grain" aria-hidden="true"></div>
     <div class="rhythm-lines" aria-hidden="true"></div>
+    <div class="ambient-light" aria-hidden="true"></div>
 
     <header class="site-header" data-header>
       <a class="brand-mark" href="#home" aria-label="Balaganist home">
@@ -71,6 +72,17 @@
         <a href="#contact">Contact</a>
       </nav>
     </header>
+
+    <aside class="journey-rail" data-journey-rail aria-label="Page progress">
+      <p class="journey-rail__label">The set</p>
+      <div class="journey-rail__progress" aria-hidden="true"><i data-journey-progress></i></div>
+      <nav aria-label="Jump to a section">
+        <a href="#music" data-journey-link="music"><span>01</span><b>Listen</b></a>
+        <a href="#shows" data-journey-link="shows"><span>02</span><b>Live</b></a>
+        <a href="#band" data-journey-link="band"><span>03</span><b>Band</b></a>
+        <a href="#contact" data-journey-link="contact"><span>04</span><b>Contact</b></a>
+      </nav>
+    </aside>
 
     <main id="main-content">
       <section class="hero" id="home" aria-labelledby="hero-title">
@@ -93,6 +105,13 @@
           <span>Scroll through the room</span>
           <i></i>
         </div>
+
+        <div class="rhythm-tape" aria-hidden="true">
+          <div class="rhythm-tape__track">
+            <span>Jazz <i>•</i> Prog <i>•</i> Balkan <i>•</i> Middle Eastern <i>•</i> Odd meters <i>•</i> Tokyo <i>•</i> 7 against 11 <i>•</i></span>
+            <span>Jazz <i>•</i> Prog <i>•</i> Balkan <i>•</i> Middle Eastern <i>•</i> Odd meters <i>•</i> Tokyo <i>•</i> 7 against 11 <i>•</i></span>
+          </div>
+        </div>
       </section>
 
       <section class="chapter chapter--left" id="music" aria-labelledby="music-title">
@@ -105,7 +124,7 @@
 
           <div class="release-grid">
             <div class="album-object" data-album-sleeve>
-              <div class="album-insert" id="album-track-insert">
+              <div class="album-insert" id="album-track-insert" aria-hidden="true">
                 <p class="album-insert__kicker">Inside the sleeve</p>
                 <button
                   class="album-insert__title"
@@ -119,7 +138,7 @@
                 </button>
                 <ol class="track-list track-list--insert">
                   <li>
-                    <button class="track-list__play" type="button" data-bandcamp-track="2207760647" data-track-title="Zen &amp; Hummus" aria-label="Play Zen &amp; Hummus in the Bandcamp player">
+                    <button class="track-list__play" type="button" data-bandcamp-track="2207760647" data-track-title="Zen &amp; Hummus" data-track-number="01" data-track-duration="08:11" aria-pressed="false" aria-label="Load Zen &amp; Hummus in the Bandcamp player">
                       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9 7 8 5-8 5Z"></path></svg>
                     </button>
                     <button class="track-list__details" type="button" data-album-detail="zen-hummus" aria-haspopup="dialog" aria-controls="album-details-modal">
@@ -127,7 +146,7 @@
                     </button>
                   </li>
                   <li>
-                    <button class="track-list__play" type="button" data-bandcamp-track="1478400786" data-track-title="Slap Happy" aria-label="Play Slap Happy in the Bandcamp player">
+                    <button class="track-list__play" type="button" data-bandcamp-track="1478400786" data-track-title="Slap Happy" data-track-number="02" data-track-duration="05:18" aria-pressed="false" aria-label="Load Slap Happy in the Bandcamp player">
                       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9 7 8 5-8 5Z"></path></svg>
                     </button>
                     <button class="track-list__details" type="button" data-album-detail="slap-happy" aria-haspopup="dialog" aria-controls="album-details-modal">
@@ -135,7 +154,7 @@
                     </button>
                   </li>
                   <li>
-                    <button class="track-list__play" type="button" data-bandcamp-track="3384979077" data-track-title="Nomuzo" aria-label="Play Nomuzo in the Bandcamp player">
+                    <button class="track-list__play" type="button" data-bandcamp-track="3384979077" data-track-title="Nomuzo" data-track-number="03" data-track-duration="05:48" aria-pressed="false" aria-label="Load Nomuzo in the Bandcamp player">
                       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9 7 8 5-8 5Z"></path></svg>
                     </button>
                     <button class="track-list__details" type="button" data-album-detail="nomuzo" aria-haspopup="dialog" aria-controls="album-details-modal">
@@ -143,7 +162,7 @@
                     </button>
                   </li>
                   <li>
-                    <button class="track-list__play" type="button" data-bandcamp-track="767259295" data-track-title="Five" aria-label="Play Five in the Bandcamp player">
+                    <button class="track-list__play" type="button" data-bandcamp-track="767259295" data-track-title="Five" data-track-number="04" data-track-duration="05:00" aria-pressed="false" aria-label="Load Five in the Bandcamp player">
                       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9 7 8 5-8 5Z"></path></svg>
                     </button>
                     <button class="track-list__details" type="button" data-album-detail="five" aria-haspopup="dialog" aria-controls="album-details-modal">
@@ -189,16 +208,80 @@
               <p class="release-kicker">Featured release · 2016</p>
               <h3>EP No. 1</h3>
               <p>Four original instrumental tracks shaped by progressive-rock structures, jazz instincts and sounds gathered from around the world.</p>
-              <iframe
-                class="bandcamp-player"
-                id="bandcamp-player"
-                title="Listen to EP No. 1 by Balaganist on Bandcamp"
-                src="https://bandcamp.com/EmbeddedPlayer/album=506663424/size=large/bgcol=111111/linkcol=e1bb2d/tracklist=false/artwork=small/transparent=true/"
-                data-bandcamp-base="https://bandcamp.com/EmbeddedPlayer/album=506663424/size=large/bgcol=111111/linkcol=e1bb2d/tracklist=false/artwork=small/"
-                allow="autoplay"
-                seamless
-              ></iframe>
-              <p class="bandcamp-selection-status" id="bandcamp-selection-status" role="status" aria-live="polite"></p>
+
+              <section class="signal-player" data-signal-player aria-label="Balaganist music player">
+                <header class="signal-player__header">
+                  <div class="signal-player__now">
+                    <p class="signal-player__eyebrow"><span aria-hidden="true"></span> Signal player</p>
+                    <p class="signal-player__state" data-player-state>Player ready</p>
+                    <h4 data-player-track-title>EP No. 1</h4>
+                    <p class="signal-player__meta" data-player-track-meta>Full release · Four tracks</p>
+                  </div>
+
+                  <div class="signal-player__meter" aria-hidden="true">
+                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                  </div>
+                </header>
+
+                <ol class="signal-player__tracks" aria-label="Tracks on EP No. 1">
+                  <li>
+                    <button class="signal-player__track" type="button" data-bandcamp-track="2207760647" data-track-title="Zen &amp; Hummus" data-track-number="01" data-track-duration="08:11" aria-pressed="false">
+                      <span class="signal-player__track-number">01</span>
+                      <span class="signal-player__track-copy"><strong>Zen &amp; Hummus</strong><small>Load track</small></span>
+                      <time datetime="PT8M11S">08:11</time>
+                      <span class="signal-player__track-action" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="m9 7 8 5-8 5Z"></path></svg></span>
+                    </button>
+                  </li>
+
+                  <li>
+                    <button class="signal-player__track" type="button" data-bandcamp-track="1478400786" data-track-title="Slap Happy" data-track-number="02" data-track-duration="05:18" aria-pressed="false">
+                      <span class="signal-player__track-number">02</span>
+                      <span class="signal-player__track-copy"><strong>Slap Happy</strong><small>Load track</small></span>
+                      <time datetime="PT5M18S">05:18</time>
+                      <span class="signal-player__track-action" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="m9 7 8 5-8 5Z"></path></svg></span>
+                    </button>
+                  </li>
+
+                  <li>
+                    <button class="signal-player__track" type="button" data-bandcamp-track="3384979077" data-track-title="Nomuzo" data-track-number="03" data-track-duration="05:48" aria-pressed="false">
+                      <span class="signal-player__track-number">03</span>
+                      <span class="signal-player__track-copy"><strong>Nomuzo</strong><small>Load track</small></span>
+                      <time datetime="PT5M48S">05:48</time>
+                      <span class="signal-player__track-action" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="m9 7 8 5-8 5Z"></path></svg></span>
+                    </button>
+                  </li>
+
+                  <li>
+                    <button class="signal-player__track" type="button" data-bandcamp-track="767259295" data-track-title="Five" data-track-number="04" data-track-duration="05:00" aria-pressed="false">
+                      <span class="signal-player__track-number">04</span>
+                      <span class="signal-player__track-copy"><strong>Five</strong><small>Load track</small></span>
+                      <time datetime="PT5M">05:00</time>
+                      <span class="signal-player__track-action" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="m9 7 8 5-8 5Z"></path></svg></span>
+                    </button>
+                  </li>
+                </ol>
+
+                <div class="signal-player__embed">
+                  <div class="signal-player__embed-label">
+                    <span>Bandcamp playback</span>
+                    <span>Use the play control below</span>
+                  </div>
+                  <iframe
+                    class="bandcamp-player"
+                    id="bandcamp-player"
+                    title="Listen to EP No. 1 by Balaganist on Bandcamp"
+                    src="https://bandcamp.com/EmbeddedPlayer/album=506663424/size=large/bgcol=111111/linkcol=e1bb2d/tracklist=false/artwork=small/transparent=true/"
+                    data-bandcamp-base="https://bandcamp.com/EmbeddedPlayer/album=506663424/size=large/bgcol=111111/linkcol=e1bb2d/tracklist=false/artwork=small/"
+                    allow="autoplay"
+                    seamless
+                  ></iframe>
+                </div>
+
+                <footer class="signal-player__footer">
+                  <p class="bandcamp-selection-status" id="bandcamp-selection-status" role="status" aria-live="polite">Choose a track, then use the Bandcamp play control.</p>
+                  <a href="https://balaganist.bandcamp.com/album/ep-no-1" target="_blank" rel="noopener noreferrer">Open full album <span aria-hidden="true">↗</span></a>
+                </footer>
+              </section>
             </div>
           </div>
 
