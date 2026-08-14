@@ -1,7 +1,36 @@
 (function () {
   "use strict";
 
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (window.NodeList && !window.NodeList.prototype.forEach) {
+    window.NodeList.prototype.forEach = Array.prototype.forEach;
+  }
+
+  if (window.Element && !window.Element.prototype.remove) {
+    window.Element.prototype.remove = function () {
+      if (this.parentNode) this.parentNode.removeChild(this);
+    };
+  }
+
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const hasFinePointer = window.matchMedia && window.matchMedia("(pointer: fine)").matches;
+
+  function replaceElementChildren(element, child) {
+    while (element.firstChild) {
+      element.removeChild(element.firstChild);
+    }
+
+    if (child) element.appendChild(child);
+  }
+
+  function restoreFocus(element) {
+    if (!element) return;
+
+    try {
+      element.focus({ preventScroll: true });
+    } catch (_) {
+      element.focus();
+    }
+  }
 
   // Add credits and stories by replacing the blank strings in this object.
   const albumDetailProfiles = {
@@ -310,6 +339,119 @@
     });
   }
 
+  function setupAmbientEffects() {
+    const panels = document.querySelectorAll(".section-shell");
+
+    if (!hasFinePointer || reduceMotion) return;
+
+    document.body.classList.add("has-fine-pointer");
+
+    let ambientFrame = null;
+    let pointerX = window.innerWidth / 2;
+    let pointerY = window.innerHeight * 0.38;
+
+    function renderAmbientLight() {
+      const x = Math.max(0, Math.min(100, pointerX / Math.max(1, window.innerWidth) * 100));
+      const y = Math.max(0, Math.min(100, pointerY / Math.max(1, window.innerHeight) * 100));
+
+      document.documentElement.style.setProperty("--ambient-x", x.toFixed(2) + "%");
+      document.documentElement.style.setProperty("--ambient-y", y.toFixed(2) + "%");
+      ambientFrame = null;
+    }
+
+    window.addEventListener("mousemove", function (event) {
+      pointerX = event.clientX;
+      pointerY = event.clientY;
+
+      if (ambientFrame === null) {
+        ambientFrame = window.requestAnimationFrame(renderAmbientLight);
+      }
+    });
+
+    panels.forEach(function (panel) {
+      let panelFrame = null;
+      let localX = 50;
+      let localY = 30;
+
+      function renderPanelSpotlight() {
+        panel.style.setProperty("--spotlight-x", localX.toFixed(2) + "%");
+        panel.style.setProperty("--spotlight-y", localY.toFixed(2) + "%");
+        panelFrame = null;
+      }
+
+      panel.addEventListener("mousemove", function (event) {
+        const bounds = panel.getBoundingClientRect();
+        localX = (event.clientX - bounds.left) / Math.max(1, bounds.width) * 100;
+        localY = (event.clientY - bounds.top) / Math.max(1, bounds.height) * 100;
+        panel.classList.add("is-pointer-active");
+
+        if (panelFrame === null) {
+          panelFrame = window.requestAnimationFrame(renderPanelSpotlight);
+        }
+      });
+
+      panel.addEventListener("mouseleave", function () {
+        panel.classList.remove("is-pointer-active");
+      });
+    });
+  }
+
+  function setupJourneyRail() {
+    const rail = document.querySelector("[data-journey-rail]");
+    const progress = document.querySelector("[data-journey-progress]");
+    const links = document.querySelectorAll("[data-journey-link]");
+
+    if (!rail || !progress || !links.length) return;
+
+    const sections = [];
+    links.forEach(function (link) {
+      const section = document.getElementById(link.getAttribute("data-journey-link"));
+      if (section) sections.push({ link: link, section: section });
+    });
+
+    if (!sections.length) return;
+
+    let frame = null;
+
+    function updateJourneyRail() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop || 0;
+      const scrollRange = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const pageProgress = Math.max(0, Math.min(1, scrollTop / scrollRange));
+      const focusLine = window.innerHeight * 0.52;
+      let activeSection = null;
+
+      progress.style.transform = "scaleY(" + pageProgress.toFixed(4) + ")";
+
+      sections.forEach(function (item) {
+        if (item.section.getBoundingClientRect().top <= focusLine) {
+          activeSection = item.section.id;
+        }
+      });
+
+      sections.forEach(function (item) {
+        const active = item.section.id === activeSection;
+        item.link.classList.toggle("is-active", active);
+
+        if (active) {
+          item.link.setAttribute("aria-current", "true");
+        } else {
+          item.link.removeAttribute("aria-current");
+        }
+      });
+
+      frame = null;
+    }
+
+    function scheduleJourneyUpdate() {
+      if (frame !== null) return;
+      frame = window.requestAnimationFrame(updateJourneyRail);
+    }
+
+    window.addEventListener("scroll", scheduleJourneyUpdate, { passive: true });
+    window.addEventListener("resize", scheduleJourneyUpdate);
+    updateJourneyRail();
+  }
+
   function setupHeader() {
     const header = document.querySelector("[data-header]");
     const toggle = document.querySelector(".nav-toggle");
@@ -438,7 +580,7 @@
       });
 
       title.setAttribute("aria-label", originalText);
-      title.replaceChildren(fragment);
+      replaceElementChildren(title, fragment);
       title.style.setProperty(
         "--kinetic-meter-delay",
         `${baseDelay + Math.min(letterIndex * 24, 620)}ms`
@@ -502,7 +644,7 @@
   }
 
   function setupMemberTilt() {
-    if (reduceMotion || !window.matchMedia("(pointer: fine)").matches) return;
+    if (reduceMotion || !hasFinePointer) return;
 
     document.querySelectorAll("[data-tilt]").forEach(function (card) {
       card.addEventListener("pointermove", function (event) {
@@ -522,34 +664,44 @@
 
   function setupAlbumExperience() {
     const albumObject = document.querySelector("[data-album-sleeve]");
-    const albumCover = albumObject?.querySelector(".album-sleeve");
-    const albumInsert = albumObject?.querySelector(".album-insert");
-    const insertToggle = albumObject?.querySelector("[data-album-insert-toggle]");
-    const trackButtons = albumObject?.querySelectorAll("[data-bandcamp-track]");
+    const albumCover = albumObject ? albumObject.querySelector(".album-sleeve") : null;
+    const albumInsert = albumObject ? albumObject.querySelector(".album-insert") : null;
+    const insertToggle = albumObject ? albumObject.querySelector("[data-album-insert-toggle]") : null;
+    const trackButtons = document.querySelectorAll("[data-bandcamp-track]");
     const player = document.getElementById("bandcamp-player");
     const playerStatus = document.getElementById("bandcamp-selection-status");
+    const playerSurface = document.querySelector("[data-signal-player]");
+    const playerState = document.querySelector("[data-player-state]");
+    const playerTrackTitle = document.querySelector("[data-player-track-title]");
+    const playerTrackMeta = document.querySelector("[data-player-track-meta]");
 
-    if (
-      !albumObject ||
-      !albumCover ||
-      !albumInsert ||
-      !insertToggle ||
-      !trackButtons?.length ||
-      !player
-    ) {
-      return;
-    }
+    if (!trackButtons.length || !player || !playerSurface) return;
 
     let tiltFrame = 0;
     let insertCloseTimer = null;
     let pendingTrack = null;
 
     function finishInsertClose() {
+      if (!albumObject) return;
       albumObject.classList.remove("is-insert-closing");
       insertCloseTimer = null;
     }
 
+    function setInsertAccessibility(open) {
+      if (!albumInsert) return;
+
+      albumInsert.setAttribute("aria-hidden", open ? "false" : "true");
+      albumInsert.querySelectorAll("button, a").forEach(function (control) {
+        if (open) {
+          control.removeAttribute("tabindex");
+        } else {
+          control.setAttribute("tabindex", "-1");
+        }
+      });
+    }
+
     function setInsertOpen(open) {
+      if (!albumObject || !insertToggle) return;
       const wasOpen = albumObject.classList.contains("is-insert-open");
 
       if (insertCloseTimer !== null) {
@@ -570,9 +722,12 @@
       }
 
       insertToggle.setAttribute("aria-expanded", String(open));
+      setInsertAccessibility(open);
     }
 
     function resetTilt() {
+      if (!albumCover) return;
+
       if (tiltFrame) {
         window.cancelAnimationFrame(tiltFrame);
         tiltFrame = 0;
@@ -584,33 +739,69 @@
       albumCover.style.setProperty("--foil-y", "24%");
     }
 
+    function setTrackButtonState(trackId, loading) {
+      trackButtons.forEach(function (trackButton) {
+        const selected = trackButton.getAttribute("data-bandcamp-track") === trackId;
+        const hint = trackButton.querySelector(".signal-player__track-copy small");
+
+        trackButton.classList.toggle("is-selected", selected);
+        trackButton.classList.toggle("is-loading", selected && loading);
+        trackButton.setAttribute("aria-pressed", selected ? "true" : "false");
+
+        if (hint) {
+          if (!selected) {
+            hint.textContent = "Load track";
+          } else {
+            hint.textContent = loading ? "Loading Bandcamp…" : "Selected track";
+          }
+        }
+      });
+    }
+
     function playBandcampTrack(button) {
-      const trackId = button.dataset.bandcampTrack;
-      const trackTitle = button.dataset.trackTitle || "Selected track";
-      const baseUrl = player.dataset.bandcampBase;
+      const trackId = button.getAttribute("data-bandcamp-track");
+      const trackTitle = button.getAttribute("data-track-title") || "Selected track";
+      const trackNumber = button.getAttribute("data-track-number") || "";
+      const trackDuration = button.getAttribute("data-track-duration") || "";
+      const baseUrl = player.getAttribute("data-bandcamp-base");
 
       if (!trackId || !baseUrl) return;
 
-      trackButtons.forEach(function (trackButton) {
-        trackButton.classList.remove("is-loading", "is-selected");
-      });
+      setTrackButtonState(trackId, true);
+      pendingTrack = {
+        id: trackId,
+        title: trackTitle,
+        number: trackNumber,
+        duration: trackDuration
+      };
 
-      button.classList.add("is-loading", "is-selected");
-      pendingTrack = { button: button, title: trackTitle };
-      player.title = `Play ${trackTitle} by Balaganist on Bandcamp`;
+      playerSurface.classList.add("has-selection");
+      playerSurface.classList.add("is-loading");
+
+      if (playerState) playerState.textContent = "Loading Bandcamp";
+      if (playerTrackTitle) playerTrackTitle.textContent = trackTitle;
+      if (playerTrackMeta) {
+        playerTrackMeta.textContent = "Track " + trackNumber + (trackDuration ? " · " + trackDuration : "");
+      }
+
+      player.title = "Play " + trackTitle + " by Balaganist on Bandcamp";
       player.setAttribute(
         "src",
-        `${baseUrl}track=${encodeURIComponent(trackId)}/autoplay=true/transparent=true/`
+        baseUrl + "track=" + encodeURIComponent(trackId) + "/autoplay=true/transparent=true/"
       );
 
       if (playerStatus) {
-        playerStatus.textContent = `Starting “${trackTitle}” in Bandcamp…`;
+        playerStatus.textContent = "Loading “" + trackTitle + "”…";
       }
     }
 
-    insertToggle.addEventListener("click", function () {
-      setInsertOpen(insertToggle.getAttribute("aria-expanded") !== "true");
-    });
+    if (insertToggle) {
+      setInsertAccessibility(albumObject.classList.contains("is-insert-open"));
+
+      insertToggle.addEventListener("click", function () {
+        setInsertOpen(insertToggle.getAttribute("aria-expanded") !== "true");
+      });
+    }
 
     trackButtons.forEach(function (button) {
       button.addEventListener("click", function () {
@@ -621,16 +812,19 @@
     player.addEventListener("load", function () {
       if (!pendingTrack) return;
 
-      pendingTrack.button.classList.remove("is-loading");
+      setTrackButtonState(pendingTrack.id, false);
+      playerSurface.classList.remove("is-loading");
+
+      if (playerState) playerState.textContent = "Track loaded";
 
       if (playerStatus) {
-        playerStatus.textContent = `“${pendingTrack.title}” is loaded in the Bandcamp player.`;
+        playerStatus.textContent = "“" + pendingTrack.title + "” is ready. Press play below if it did not start automatically.";
       }
 
       pendingTrack = null;
     });
 
-    if (!reduceMotion && window.matchMedia("(pointer: fine)").matches) {
+    if (albumCover && !reduceMotion && hasFinePointer) {
       albumCover.addEventListener("pointermove", function (event) {
         const bounds = albumCover.getBoundingClientRect();
         const x = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
@@ -654,8 +848,8 @@
 
   function setupAlbumDetails() {
     const modal = document.getElementById("album-details-modal");
-    const modalCard = modal?.querySelector(".album-details-card");
-    const closeButton = modal?.querySelector("[data-album-details-close]");
+    const modalCard = modal ? modal.querySelector(".album-details-card") : null;
+    const closeButton = modal ? modal.querySelector("[data-album-details-close]") : null;
     const eyebrow = document.getElementById("album-details-eyebrow");
     const title = document.getElementById("album-details-title");
     const meta = document.getElementById("album-details-meta");
@@ -693,7 +887,8 @@
         heading.textContent = sectionData.title;
         fields.className = "album-details-card__fields";
 
-        Object.entries(sectionData.fields).forEach(function ([label, value]) {
+        Object.keys(sectionData.fields).forEach(function (label) {
+          const value = sectionData.fields[label];
           const row = document.createElement("div");
           const term = document.createElement("dt");
           const description = document.createElement("dd");
@@ -708,15 +903,17 @@
             description.setAttribute("aria-label", "Not added yet");
           }
 
-          row.append(term, description);
+          row.appendChild(term);
+          row.appendChild(description);
           fields.appendChild(row);
         });
 
-        section.append(heading, fields);
+        section.appendChild(heading);
+        section.appendChild(fields);
         fragment.appendChild(section);
       });
 
-      sectionsContainer.replaceChildren(fragment);
+      replaceElementChildren(sectionsContainer, fragment);
     }
 
     function finishClose() {
@@ -724,7 +921,7 @@
       modal.classList.remove("is-fallback");
 
       if (lastTrigger) {
-        lastTrigger.focus({ preventScroll: true });
+        restoreFocus(lastTrigger);
         lastTrigger = null;
       }
     }
@@ -792,13 +989,13 @@
 
   function setupMemberBios() {
     const modal = document.getElementById("member-modal");
-    const modalSurface = modal?.querySelector(".member-modal__surface");
+    const modalSurface = modal ? modal.querySelector(".member-modal__surface") : null;
     const modalImage = document.getElementById("member-modal-image");
     const modalName = document.getElementById("member-modal-name");
     const modalRole = document.getElementById("member-modal-role");
     const modalBio = document.getElementById("member-modal-bio");
     const modalSocials = document.getElementById("member-modal-socials");
-    const closeButton = modal?.querySelector("[data-member-modal-close]");
+    const closeButton = modal ? modal.querySelector("[data-member-modal-close]") : null;
     const profileButtons = document.querySelectorAll("[data-member-profile]");
 
     if (
@@ -819,9 +1016,10 @@
 
     function finishClose() {
       document.body.classList.remove("bio-open");
+      modal.classList.remove("is-fallback");
 
       if (lastTrigger) {
-        lastTrigger.focus({ preventScroll: true });
+        restoreFocus(lastTrigger);
         lastTrigger = null;
       }
     }
@@ -838,7 +1036,7 @@
     }
 
     function createSocialLinks(links) {
-      modalSocials.replaceChildren();
+      replaceElementChildren(modalSocials);
 
       if (!links.length) {
         const message = document.createElement("p");
@@ -880,7 +1078,9 @@
         if (typeof modal.showModal === "function") {
           modal.showModal();
         } else {
+          modal.classList.add("is-fallback");
           modal.setAttribute("open", "");
+          closeButton.focus();
         }
       }
     }
@@ -903,15 +1103,21 @@
     });
 
     modal.addEventListener("close", finishClose);
+
+    window.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && modal.classList.contains("is-fallback")) {
+        closeModal();
+      }
+    });
   }
 
   function escapeHtml(value) {
     return String(value || "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   }
 
   function toCalendarTimestamp(value) {
@@ -920,22 +1126,26 @@
 
   function buildGoogleCalendarUrl(show) {
     const location = show.address || [show.venue, show.city].filter(Boolean).join(", ");
-    const params = new URLSearchParams({
+    const params = {
       action: "TEMPLATE",
       text: show.title,
-      dates: `${toCalendarTimestamp(show.start)}/${toCalendarTimestamp(show.end)}`,
+      dates: toCalendarTimestamp(show.start) + "/" + toCalendarTimestamp(show.end),
       details: show.note || "Balaganist live",
       location: location,
       ctz: show.timezone || "Asia/Tokyo"
-    });
-    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+    };
+    const query = Object.keys(params).map(function (key) {
+      return encodeURIComponent(key) + "=" + encodeURIComponent(params[key]);
+    }).join("&");
+
+    return "https://calendar.google.com/calendar/render?" + query;
   }
 
   function escapeIcs(value) {
     return String(value || "")
-      .replaceAll("\\", "\\\\")
-      .replaceAll(";", "\\;")
-      .replaceAll(",", "\\,")
+      .replace(/\\/g, "\\\\")
+      .replace(/;/g, "\\;")
+      .replace(/,/g, "\\,")
       .replace(/\r?\n/g, "\\n");
   }
 
@@ -966,7 +1176,7 @@
     link.download = `${show.id || "balaganist-show"}.ics`;
     document.body.appendChild(link);
     link.click();
-    link.remove();
+    document.body.removeChild(link);
     window.setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
   }
 
@@ -1169,6 +1379,8 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     setCurrentYear();
+    setupAmbientEffects();
+    setupJourneyRail();
     setupHeader();
     setupKineticTypography();
     setupRevealAnimations();
