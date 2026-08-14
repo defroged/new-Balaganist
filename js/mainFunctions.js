@@ -33,32 +33,33 @@
   }
 
   // Add credits and stories by replacing the blank strings in this object.
+  // Blank values are omitted from the public detail cards until they are confirmed.
   const albumDetailProfiles = {
     album: {
       eyebrow: "Album details",
-      title: "EP No. 1",
+      title: "EP #1",
       meta: "Balaganist · 2016 · Four tracks",
       sections: [
         {
           title: "Album credits",
           fields: {
-            "Produced by": "",
+            "Produced by": "Ron J. Ward",
             "Executive producer": "",
             "Recorded by": "",
             "Recorded at": "",
-            "Mixed by": "",
-            "Mastered by": "",
-            "Artwork / design": "",
-            "Photography": "",
-            "Label / catalog": "",
-            "Release date": ""
+            "Mixed by": "Ron J. Ward",
+            "Mastered by": "Ron J. Ward",
+            "Artwork / design": "Itamar Heifetz",
+            "Photography": "Takafumi Koda",
+            "Label / catalog": "Self-released",
+            "Release year": "2016"
           }
         },
         {
           title: "Inside the album",
           layout: "wide",
           fields: {
-            "Background / story": "",
+            "Background / story": "EP #1 was self-released in 2016, one year after Ron J. Ward founded Balaganist in Tokyo.",
             "Recording notes": "",
             "Fun facts": "",
             "Special thanks": ""
@@ -70,7 +71,7 @@
     "zen-hummus": {
       eyebrow: "Track 01",
       title: "Zen & Hummus",
-      meta: "08:11 · EP No. 1",
+      meta: "08:11 · EP #1",
       sections: [
         {
           title: "Track credits",
@@ -85,11 +86,11 @@
             "Keyboards": "",
             "Percussion": "",
             "Additional musicians": "",
-            "Produced by": "",
+            "Produced by": "Ron J. Ward",
             "Recorded by": "",
             "Recorded at": "",
-            "Mixed by": "",
-            "Mastered by": ""
+            "Mixed by": "Ron J. Ward",
+            "Mastered by": "Ron J. Ward"
           }
         },
         {
@@ -109,7 +110,7 @@
     "slap-happy": {
       eyebrow: "Track 02",
       title: "Slap Happy",
-      meta: "05:18 · EP No. 1",
+      meta: "05:18 · EP #1",
       sections: [
         {
           title: "Track credits",
@@ -124,11 +125,11 @@
             "Keyboards": "",
             "Percussion": "",
             "Additional musicians": "",
-            "Produced by": "",
+            "Produced by": "Ron J. Ward",
             "Recorded by": "",
             "Recorded at": "",
-            "Mixed by": "",
-            "Mastered by": ""
+            "Mixed by": "Ron J. Ward",
+            "Mastered by": "Ron J. Ward"
           }
         },
         {
@@ -148,7 +149,7 @@
     nomuzo: {
       eyebrow: "Track 03",
       title: "Nomuzo",
-      meta: "05:48 · EP No. 1",
+      meta: "05:48 · EP #1",
       sections: [
         {
           title: "Track credits",
@@ -163,11 +164,11 @@
             "Keyboards": "",
             "Percussion": "",
             "Additional musicians": "",
-            "Produced by": "",
+            "Produced by": "Ron J. Ward",
             "Recorded by": "",
             "Recorded at": "",
-            "Mixed by": "",
-            "Mastered by": ""
+            "Mixed by": "Ron J. Ward",
+            "Mastered by": "Ron J. Ward"
           }
         },
         {
@@ -187,7 +188,7 @@
     five: {
       eyebrow: "Track 04",
       title: "Five",
-      meta: "05:00 · EP No. 1",
+      meta: "05:00 · EP #1",
       sections: [
         {
           title: "Track credits",
@@ -202,11 +203,11 @@
             "Keyboards": "",
             "Percussion": "",
             "Additional musicians": "",
-            "Produced by": "",
+            "Produced by": "Ron J. Ward",
             "Recorded by": "",
             "Recorded at": "",
-            "Mixed by": "",
-            "Mastered by": ""
+            "Mixed by": "Ron J. Ward",
+            "Mastered by": "Ron J. Ward"
           }
         },
         {
@@ -230,7 +231,7 @@
       role: "Guitars · Composition",
       image: "img/guitar-rec.jpg",
       alt: "Ron J. Ward playing guitar on stage",
-      bio: "Ron J. Ward is a Japan-based composer, guitarist, producer and founder of Balaganist. His work spans game and media music, sound design, mixing and mastering, but rhythm is at the centre of it all—especially odd meters and grooves that feel natural rather than mathematical. In Balaganist, he writes the music and shapes its collision of progressive rock, jazz and sounds from around the world.",
+      bio: "Ron J. Ward is a Japan-based composer, guitarist, producer and founder of Balaganist, which he formed in Tokyo in 2015. His work spans game and media music, sound design, mixing and mastering, but rhythm is at the centre of it all—especially odd meters and grooves that feel natural rather than mathematical. In Balaganist, he writes most of the music and shapes its beautiful collision of progressive rock, jazz and sounds from around the world.",
       links: [
         { label: "Website", url: "https://ronjward.com/" },
         { label: "Instagram", url: "https://www.instagram.com/ronjward" },
@@ -299,11 +300,11 @@
     },
 
     carter: {
-      name: "Kevin S. Carter",
+      name: "Kevin Carter",
       role: "Soprano Saxophone",
       image: "img/carter.jpg",
       alt: "Kevin Carter playing saxophone",
-      bio: "Kevin S. Carter is the soprano saxophonist heard on Balaganist’s 2016 EP No. 1. A key voice in the band’s original studio lineup, his playing gives the music a bright, vocal lead sound that moves naturally between jazz phrasing and progressive-rock contours.",
+      bio: "Kevin Carter is the soprano saxophonist heard on Balaganist’s 2016 EP #1. A key voice in the band’s original studio lineup, his playing gives the music a bright, vocal lead sound that moves naturally between jazz phrasing and progressive-rock contours.",
       links: []
     },
 
@@ -875,6 +876,13 @@
       const fragment = document.createDocumentFragment();
 
       sections.forEach(function (sectionData) {
+        const populatedLabels = Object.keys(sectionData.fields).filter(function (label) {
+          const value = sectionData.fields[label];
+          return value !== null && typeof value !== "undefined" && String(value).trim();
+        });
+
+        if (!populatedLabels.length) return;
+
         const section = document.createElement("section");
         const heading = document.createElement("h3");
         const fields = document.createElement("dl");
@@ -887,21 +895,15 @@
         heading.textContent = sectionData.title;
         fields.className = "album-details-card__fields";
 
-        Object.keys(sectionData.fields).forEach(function (label) {
-          const value = sectionData.fields[label];
+        populatedLabels.forEach(function (label) {
+          const text = String(sectionData.fields[label]).trim();
           const row = document.createElement("div");
           const term = document.createElement("dt");
           const description = document.createElement("dd");
-          const text = String(value || "").trim();
 
           row.className = "album-details-card__field";
           term.textContent = label;
-          description.textContent = text || "—";
-
-          if (!text) {
-            description.classList.add("is-empty");
-            description.setAttribute("aria-label", "Not added yet");
-          }
+          description.textContent = text;
 
           row.appendChild(term);
           row.appendChild(description);
